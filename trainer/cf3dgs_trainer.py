@@ -7,6 +7,7 @@
 # license agreement from NVIDIA CORPORATION is strictly prohibited.
 
 import os
+import warnings
 from tqdm import tqdm
 from random import randint
 import math
@@ -46,6 +47,7 @@ import pdb
 
 from .trainer import GaussianTrainer
 from .losses import Loss, compute_scale_and_shift
+# 屎 你用你妈的相对导入啊
 
 from copy import copy
 from utils.vis_utils import interp_poses_bspline, generate_spiral_nerf, plot_pose
@@ -62,6 +64,8 @@ def contruct_pose(poses):
 class CFGaussianTrainer(GaussianTrainer):
     def __init__(self, data_root, model_cfg, pipe_cfg, optim_cfg):
         super().__init__(data_root, model_cfg, pipe_cfg, optim_cfg)
+        # 屎 用你妈的父类继承初始化啊
+
         self.model_cfg = model_cfg
         self.pipe_cfg = pipe_cfg
         self.optim_cfg = optim_cfg
@@ -103,6 +107,7 @@ class CFGaussianTrainer(GaussianTrainer):
             compute_cov3D_python=pipe.compute_cov3D_python,
             convert_SHs_python=pipe.convert_SHs_python,
             override_color=colors_precomp)
+        # render_pkg is a list contains 4 render_pkgs
 
         if prev_gaussians is not None:
             with torch.no_grad():
@@ -118,19 +123,40 @@ class CFGaussianTrainer(GaussianTrainer):
             render_pkg["depth"] = render_pkg["depth"] * \
                 mask + render_pkg_prev["depth"] * (1 - mask)
 
-        image, viewspace_point_tensor, visibility_filter, radii = (render_pkg["image"],
-                                                                   render_pkg["viewspace_points"],
-                                                                   render_pkg["visibility_filter"],
-                                                                   render_pkg["radii"])
+        # images, viewspace_point_tensor, visibility_filter, radii = (render_pkg["image"],
+        #                                                            render_pkg["viewspace_points"],
+        #                                                            render_pkg["visibility_filter"],
+        #                                                            render_pkg["radii"])
+        images = [render["image"] for render in render_pkg]
+        viewspace_point_tensor = [render["viewspace_points"] for render in render_pkg]
+        visibility_filter = [render["visibility_filter"] for render in render_pkg]
+        radii = [render["radii"] for render in render_pkg]
+
+        # -------------------------------- check data.attribute --------------------------------
+        for idx, img in enumerate(images):
+            print(f"Image {idx}: Type={type(img)}, Shape={img.shape}")
+        for idx, pts in enumerate(viewspace_point_tensor):
+            print(f"Viewspace Points {idx}: Type={type(pts)}, Shape={pts.shape}")
+        for idx, vf in enumerate(visibility_filter):
+            print(f"Visibility Filter {idx}: Type={type(vf)}, Shape={vf.shape}")
+        for idx, r in enumerate(radii):
+            print(f"Radii {idx}: Type={type(r)}, Shape={r.shape}")
+
+        # -------------------------------- check data.attribute --------------------------------
+
         # Loss
-        gt_image = viewpoint_cam.original_image.cuda()
-        loss_dict = self.compute_loss(render_pkg, viewpoint_cam,
+        gt_images = [vc.original_image.cuda() for vc in viewpoint_cam]
+        loss_dicts = []
+        total_loss = 0.0
+        for i, vw in enumerate(viewpoint_cam):
+            loss_dict = self.compute_loss(render_pkg[i], vw,
                                       pipe, iteration,
                                       use_reproject, use_matcher,
                                       ref_fidx, **kwargs)
-
-        loss = loss_dict['loss']
-        loss.backward()
+            loss_dicts.append(loss_dict)
+            total_loss += loss_dict['loss']
+       
+        total_loss.backward()
 
         with torch.no_grad():
             # Progress bar
@@ -139,7 +165,9 @@ class CFGaussianTrainer(GaussianTrainer):
             # except:
             #     pdb.set_trace()
             # mask = visibility_filter.reshape(gt_image.shape[1:])[None]
-            psnr_train = psnr(image, gt_image).mean().double()
+            images_batch = torch.stack(images) 
+            gt_images_batch = torch.stack(gt_images)
+            psnr_train = psnr(images_batch, gt_images_batch).mean().double()
             self.just_reset = False
             if iteration < optim_opt.densify_until_iter and densify:
                 # Keep track of max radii in image-space for pruning
@@ -175,7 +203,7 @@ class CFGaussianTrainer(GaussianTrainer):
     def init_two_view(self, view_idx_1, view_idx_2, pipe, optim_opt):
         # prepare data
         self.loss_func.depth_loss_type = "invariant"
-        cam_info, pcd, viewpoint_cam = self.prepare_data(view_idx_1,
+        imgs, cam_info, pcd, viewpoint_cam = self.prepare_data(view_idx_1,
                                                          orthogonal=True,
                                                          down_sample=True)
         radius = np.linalg.norm(pcd.points, axis=1).max()
@@ -217,16 +245,23 @@ class CFGaussianTrainer(GaussianTrainer):
         return model_params
 
     def add_view_v2(self, view_idx, view_idx_prev, reverse=False):
+        '''
+
+        如果使用batch，那么用for循环去读取batch里的fidx，读到的fidx还是标量
+        传入的viewpoint_cam还是单个相机的viewpoint
+        
+        '''
         # Initialize gaussians
         self.loss_func.depth_loss_type = "invariant"
         pipe = copy(self.pipe_cfg)
         optim_opt = copy(self.optim_cfg)
-        # prepare data
-        cam_info, pcd, viewpoint_cam = self.prepare_data(view_idx_prev,
+        # prepare data          viewpoint_cam 包含四个元素
+        images, cam_info, pcd, viewpoint_cam = self.prepare_data(view_idx_prev,
                                                          orthogonal=True,
                                                          down_sample=True)
         radius = np.linalg.norm(pcd.points, axis=1).max()
         self.gs_render_local.reset_model()
+        # 目前pcd不做调整，还是使用单帧DepthMap来恢复点云
         self.gs_render_local.init_model(pcd)
         # Fit current gaussian
         optim_opt.iterations = 1000
@@ -287,22 +322,31 @@ class CFGaussianTrainer(GaussianTrainer):
         # self.visualize(rend_dict_ref, "vis/render_optim.png",
         #                gt_image=viewpoint_cam_ref.original_image.cuda(),
         #                gt_depth=self.mono_depth[view_idx_prev])
+
+
+        # -------------------------------- block need to be modified--------------------------------
         local_model_params = self.gs_render_local.gaussians.capture()
 
         # pcd under view_idx_prev frame
         pcd = self.gs_render_local.gaussians._xyz.detach()
-        rel_pose = self.gs_render_local.gaussians.get_RT().detach()
-        pose = rel_pose @ self.gs_render.gaussians.get_RT(
-            view_idx_prev).detach()
+        # rel_pose and pose have same shape (N, 4, 4)
+        # Ultimate Rt's shape should be (4, 4)
+
+        rel_pose = self.gs_render_local.gaussians.get_RT().detach() # N,4,4
+        pose = rel_pose @ self.gs_render.gaussians.get_RT(view_idx_prev).detach() # N,4,4
+        
         self.gs_render.gaussians.update_RT_seq(pose, view_idx)
 
         self.gs_render.gaussians.rotate_seq = False
         pipe.convert_SHs_python = self.gs_render.gaussians.rotate_seq
+        # -------------------------------- block need to be modified--------------------------------
 
         if self.just_reset:
+            # 应该是跟这个reset有关系，但是这个reset具体控制的是什么？
             num_iterations = 500
             self.just_reset = False
             for iteration in range(1, num_iterations):
+                # 你妈的为啥要随机数
                 fidx = randint(0, view_idx_prev)
                 self.global_iteration += 1
                 self.gs_render.gaussians.update_learning_rate(
@@ -417,7 +461,12 @@ class CFGaussianTrainer(GaussianTrainer):
 
         pose_dict = dict()
         poses_gt = []
+        # 你妈的这里是在干什么 这个for循环到底是在读啥 没懂
         for seq_data in self.data:
+            ''' 你妈的这里的seq_data是啥样的？
+                你妈的这里的self.data为啥type是camera，咋调用的？
+            '''
+            
             if self.data_type == "co3d":
                 R, t, _, _, _ = self.load_camera(seq_data)
             else:
@@ -442,9 +491,11 @@ class CFGaussianTrainer(GaussianTrainer):
         os.makedirs(f"{result_path}/mesh", exist_ok=True)
 
         num_eppch = 1
+        batch_size = 4
         reverse = False
+        # 主要负责参数初始化、优化配置
         for epoch in range(num_eppch):
-            gauss_params = self.init_two_view(
+            gauss_params = self= (
                 0, end_frame, pipe, copy(self.optim_cfg))
             
             self.global_iteration = 0
@@ -452,32 +503,64 @@ class CFGaussianTrainer(GaussianTrainer):
             self.gs_render.gaussians.rotate_seq = True
             self.gs_render.gaussians.training_setup(self.optim_cfg,
                                                     fit_pose=True,)
+            # 你妈的这个ordered dict干什么事啊？
             self.match_results = OrderedDict()
-            for fidx in range(start_frame, end_frame):
-                # pcd_new, local_gauss_params = self.add_view(
-                #     None, fidx, fidx-1, pipe, optim_opt, reverse=reverse)
-                pcd_new, local_gauss_params = self.add_view_v2(
-                    fidx, fidx-1)
-                self.gs_render.gaussians.rotate_seq = False
-                viewpoint_cam = self.load_viewpoint_cam(fidx,
-                                                        pose=self.gs_render.gaussians.get_RT(
-                                                            fidx).detach().cpu(),
-                                                        )
-                render_dict = self.gs_render.render(viewpoint_cam,
-                                                    compute_cov3D_python=pipe.compute_cov3D_python,
-                                                    convert_SHs_python=pipe.convert_SHs_python)
-                gt_image = viewpoint_cam.original_image.cuda()
-                psnr_train = psnr(render_dict["image"],
-                                    gt_image).mean().double()
-                print(
-                    'Frames {:03d}/{:03d}, PSNR : {:.03f}'.format(fidx, self.seq_len-1, psnr_train))
-                self.visualize(render_dict,
-                                f"{result_path}/train/{self.global_iteration:06d}_{fidx:03d}.png",
-                                gt_image=gt_image, save_ply=False)
 
+            # 这个for循环应该是需要修改的，这里应该就是在读取图像
+            previous_batch_fidx = None
+            for i in range(start_frame, end_frame, batch_size):
+                curr_batch_fidx = range(i, min(i + batch_size, end_frame))
+                print(f"Current batch_fidx: {curr_batch_fidx}")
+
+                if previous_batch_fidx is not None:
+                    pre_batch_fidx = previous_batch_fidx
+                    print(f"Previous batch_fidx: {pre_batch_fidx}")
+                else:
+                    pre_batch_fidx = None
+                    print("No previous batch_fidx (this is the first batch)")
+                pcd_new, local_gauss_params = self.add_view_v2(
+                                                    curr_batch_fidx, pre_batch_fidx)
+                batch_fidx = list(curr_batch_fidx)
+# -------------------------------------------four views-------------------------------------------
+                for fidx in batch_fidx:
+                    # fidx : 0,1,2,3....n-2,n-1,n
+                    # pcd_new, local_gauss_params = self.add_view(
+                    #     None, fidx, fidx-1, pipe, optim_opt, reverse=reverse)
+                    try:
+                        # pcd_new, local_gauss_params = self.add_view_v2(
+                        #     fidx, fidx-1)
+                        self.gs_render.gaussians.rotate_seq = False
+
+                        # ----------------------------计算psnr_train--------------------------------
+                        viewpoint_cam = self.load_viewpoint_cam(fidx,
+                                                            pose=self.gs_render.gaussians.get_RT(
+                                                                fidx).detach().cpu(),
+                                                            )
+                        render_dict = self.gs_render.render(viewpoint_cam,
+                                                        compute_cov3D_python=pipe.compute_cov3D_python,
+                                                        convert_SHs_python=pipe.convert_SHs_python)
+                        gt_image = viewpoint_cam.original_image.cuda()
+                        psnr_train = psnr(render_dict["image"],
+                                        gt_image).mean().double()
+                        print(
+                        'Frames {:03d}/{:03d}, PSNR : {:.03f}'.format(fidx, self.seq_len-1, psnr_train))
+                        # 这里应该需要保留，起到对高斯进行可视化和保存可视化结果的作用
+                        self.visualize(render_dict,
+                                    f"{result_path}/train/{self.global_iteration:06d}_{fidx:03d}.png",
+                                    gt_image=gt_image, save_ply=False)
+                        # ----------------------------计算psnr_train----------------------------------
+
+                    except Exception as e:
+                        warnings.warn(f"Error processing frame {fidx}: {e}")
+                        continue
+# -------------------------------------------four views-------------------------------------------
+
+                # Updata previous_batch_fidx
+                previous_batch_fidx = curr_batch_fidx
+                        
             with torch.no_grad():
                 psnr_test = 0.0
-                pose_dict["poses_pred"] = []
+                pose_dict["poses_pred"] = []    
                 self.render_depth = OrderedDict()
                 self.gs_render.gaussians.rotate_seq = False
                 self.gs_render.gaussians.rotate_xyz = False

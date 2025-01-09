@@ -142,8 +142,15 @@ class CFGaussianModel:
             if idx is None:
                 Rt = self.P[self.seq_idx].retr().matrix()
             else:
-                Rt = self.P[idx].retr().matrix()
 
+                if isinstance(idx, (list, tuple, torch.Tensor, np.ndarray)):
+                    Rt = [self.P[i].retr().matrix() for i in idx]
+                    Rt = torch.stack([torch.from_numpy(m).float() for m in Rt]).to("cuda")
+                else:
+                    Rt = self.P[idx].retr().matrix()
+                    Rt = torch.from_numpy(Rt).float().to("cuda")
+
+        # Rt shape: (N, 4, 4)
         return Rt.squeeze()
 
     def set_seq_idx(self, idx):
@@ -364,13 +371,32 @@ class CFGaussianModel:
         self.rotate_seq = True
         self.rotate_xyz = False
 
-    def update_RT_seq(self, pose, idx):
-        quat = matrix_to_quaternion(pose[:3, :3])
-        quat = quat[..., [1, 2, 3, 0]]
-        pose = torch.cat((pose[:3, 3], quat.float()), -
-                         1).cuda().requires_grad_(True)
-        self.P[idx] = LieGroupParameter(SE3(pose[None]))
-        self.P[idx].group = SE3(pose[None])
+    def update_RT_seq(self, poses, idx):
+        quats = matrix_to_quaternion(poses[:, :3, :3])
+        quats = quats[:, [1, 2, 3, 0]]
+        translations = poses[:, :3, 3]
+        pose_cat = torch.cat((translations, quats.float()), dim=-1).cuda().requires_grad_(True)
+        
+        se3 = SE3(pose_cat)  # 假设 SE3 能处理 (N, 7)
+        lie_group_param = LieGroupParameter(se3)
+
+    # 处理 idx 为列表或张量的情况
+        if isinstance(idx, (list, torch.Tensor)):
+            idx = idx.tolist() if isinstance(idx, torch.Tensor) else idx
+            if len(idx) != poses.size(0):
+                raise ValueError(f"索引数量 {len(idx)} 与姿态数量 {poses.size(0)} 不匹配。")
+            for i, index in enumerate(idx):
+                self.P[index] = lie_group_param[i]
+                self.P[index].group = se3[i]
+        elif isinstance(idx, int):
+            if poses.size(0) != 1:
+                raise ValueError(f"当 idx 为单个整数时，poses 应该只有一个姿态，但得到 {poses.size(0)} 个。")
+            self.P[idx] = lie_group_param[0]
+            self.P[idx].group = se3[0]
+        else:
+            raise TypeError("idx 必须是整数、列表或张量。")
+        # self.P[idx] = LieGroupParameter(SE3(pose[None]))
+        # self.P[idx].group = SE3(pose[None])
 
     def update_learning_rate(self, iteration):
         ''' Learning rate scheduling per step '''

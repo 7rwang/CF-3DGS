@@ -46,9 +46,13 @@ class GaussianTrainer(object):
         self.pipe_cfg = pipe_cfg
         self.optim_cfg = optim_cfg
         data_info = data_root.split('/')
+        # 果然是写的像屎
+        # data/Tanks/Francis data_info = ['data', 'tanks', 'francis']
         self.seq_name = data_info[-1]
         self.category = data_info[-2]
-        self.data_root = data_root.split(self.category)[0]
+        # self.data_root = data/ 不懂 不懂为什么这么写 你妈的
+
+        self.data_root = data_root.split(self.category)[0] 
         self.data_type = model_cfg.data_type
         self.depth_model_type = model_cfg.depth_model_type
         self.rgb_images = OrderedDict()
@@ -58,11 +62,36 @@ class GaussianTrainer(object):
         self.setup_dataset()
         self.setup_depth_predictor()
 
+    def load_json(self, json_file=None):
+        if json_file is not None:
+            intrinsics = np.zeros((4, 3, 3))
+            R = np.zeros((4, 3, 3))
+            t = np.zeros((4, 3))
+
+            if not os.path.exists(json_file):
+                print(f"Erroe! File'{json_file}' not exist")
+                return None
+            try:
+                with open('{}'.format(json_file), 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    print(f'Load json file in{json_file} successfully!')
+                    for i, key in enumerate(data):
+                        intrinsics[i, ...] = np.asarray(
+                                        data[key]['intrinsic'])[:3, :3]
+                        R[i, ...] = np.asarray(
+                                        data[key]['lidar2image'])[:3, :3]
+                        t[i, ...] = np.asarray(
+                                        data[key]['lidar2image'])[:3, 3]
+                return R, t, intrinsics 
+            except json.JSONDecodeError as e:
+                print(f"Error! Cannot load file{e}")
+            except Exception as e:
+                print(f"Error! Cannot load file{e}")
+
     def load_camera(self, data, scale=1.0):
         """
         Load a camera from a CO3D annotation.
         """
-
         principal_point = torch.tensor(
             data["viewpoint"]["principal_point"], dtype=torch.float)
         focal_length = torch.tensor(
@@ -419,7 +448,7 @@ class GaussianTrainer(object):
         points = np.asarray(pcd_data.points, dtype=np.float32)
         normals = np.asarray(pcd_data.normals, dtype=np.float32)
         pcd = BasicPointCloud(points, colors, normals)
-
+        # 返回一个cam_info, 这是一个词典里面存储了内参和一些相关参数，
         return cam_info, pcd, viewpoint_camera
 
     def prepare_data_from_viewpoint(self, idx, down_sample=True,
@@ -516,87 +545,99 @@ class GaussianTrainer(object):
     def prepare_custom_data(self, idx, down_sample=True,
                             orthogonal=True, pose=None,
                             load_depth=True, **kwargs):
-        image_name = self.data[idx]
+        x, y, z, w = idx
+        image_names = [self.data[x], self.data[y], self.data[z], self.data[w]]
+
+        images = []
+        depth_tensors = []
+        pcd_data_list = []
+        cam_info_list = []
+        viewpoint_camera_list = []
+
         intrinsics = self.intrinsic
         uid = idx
-
-        original_image = Image.open(image_name).convert("RGB")
-        width, height = original_image.size
-        if min(width, height) > 1000:
-            original_image = original_image.resize(
-                (width // 2, height // 2), Image.LANCZOS)
+        for i, image_name in enumerate(image_names):
+            original_image = Image.open(image_name).convert("RGB")
             width, height = original_image.size
-        image_np = np.asarray(original_image) / 255.0
-        color_torch = torch.from_numpy(np.asarray(
-            original_image) / 255.0).permute(2, 0, 1).float()
-        if orthogonal:
-            R = np.eye(3)
-            t = np.zeros(3)
-        elif pose is not None:
-            R = pose[:3, :3]
-            t = pose[:3, 3]
-        else:
-            R = np.eye(3)
-            t = np.zeros(3)
-        focal_length_x = self.intrinsic[0, 0]
-        focal_length_y = self.intrinsic[1, 1]
-        FoVy = focal2fov(focal_length_y, height)
-        FoVx = focal2fov(focal_length_x, width)
-
-        
-        cam_info = {}
-        pose_src = np.eye(4)
-        cam_info["gt_pose"] = copy(pose_src)
-        cam_info["intrinsics"] = intrinsics
-
-        cam_info["FoVx"] = FoVx
-        cam_info["FoVy"] = FoVy
-        cam_info["R"] = R
-        cam_info["t"] = t
-
-
-        if load_depth:
-            if idx not in self.mono_depth:
-                depth_tensor = self.predict_depth(np.asarray(original_image))
-                # depth_tensor = self.depth_model.infer_pil(image_pil, output_type='tensor')
-                depth_tensor[depth_tensor < self.near] = self.near
-                self.mono_depth[idx] = depth_tensor.cuda()
+            if min(width, height) > 1000:
+                original_image = original_image.resize(
+                    (width // 2, height // 2), Image.LANCZOS)
+                width, height = original_image.size
+            image_np = np.asarray(original_image) / 255.0
+            color_torch = torch.from_numpy(np.asarray(
+                original_image) / 255.0).permute(2, 0, 1).float()
+            
+            if orthogonal:
+                R = np.eye(3)
+                t = np.zeros(3)
+            elif pose is not None:
+                R = pose[:3, :3]
+                t = pose[:3, 3]
             else:
-                depth_tensor = self.mono_depth[idx]
-        else:
-            w, h = original_image.size
-            depth_tensor = torch.ones((h, w))
-            self.mono_depth[idx] = depth_tensor.cuda()
+                R = np.eye(3)
+                t = np.zeros(3)
+            focal_length_x = self.intrinsic[0, 0]
+            focal_length_y = self.intrinsic[1, 1]
+            FoVy = focal2fov(focal_length_y, height)
+            FoVx = focal2fov(focal_length_x, width)
 
-        intr_mat_tensor = torch.from_numpy(
-            intrinsics).float().to(depth_tensor.device)
-        pts = depth_to_3d(depth_tensor[None, None],
-                          intr_mat_tensor[None],
-                          normalize_points=False)
+            
+            cam_info = {}
+            pose_src = np.eye(4)
+            cam_info["gt_pose"] = copy(pose_src)
+            cam_info["intrinsics"] = intrinsics
 
-        points = pts[0].permute(1, 2, 0).cpu().numpy().reshape(-1, 3)
+            cam_info["FoVx"] = FoVx
+            cam_info["FoVy"] = FoVy
+            cam_info["R"] = R
+            cam_info["t"] = t
 
-        viewpoint_camera = Camera(idx, R, t, FoVx, FoVy, color_torch,
+
+            if load_depth:
+                if idx[i] not in self.mono_depth:
+                    depth_tensor = self.predict_depth(np.asarray(original_image))
+                    # depth_tensor = self.depth_model.infer_pil(image_pil, output_type='tensor')
+                    depth_tensor[depth_tensor < self.near] = self.near
+                    self.mono_depth[idx] = depth_tensor.cuda()
+                else:
+                    depth_tensor = self.mono_depth[idx]
+            else:
+                w, h = original_image.size
+                depth_tensor = torch.ones((h, w))
+                self.mono_depth[idx] = depth_tensor.cuda()
+
+            intr_mat_tensor = torch.from_numpy(
+                intrinsics).float().to(depth_tensor.device)
+            pts = depth_to_3d(depth_tensor[None, None],
+                            intr_mat_tensor[None],
+                            normalize_points=False)
+
+            points = pts[0].permute(1, 2, 0).cpu().numpy().reshape(-1, 3)
+            cam_info_list.append(cam_info)
+            # 你妈的这个uid是啥
+            viewpoint_camera = Camera(idx[i], R, t, FoVx, FoVy, color_torch,
                                 gt_alpha_mask=None, image_name=image_name,
                                 intrinsics=self.intrinsic,
                                 uid=idx, is_co3d=True)
+            viewpoint_camera_list.append(viewpoint_camera)
 
-        pcd_data = o3d.geometry.PointCloud()
-        pcd_data.points = o3d.utility.Vector3dVector(points)
-        pcd_data.colors = o3d.utility.Vector3dVector(image_np.reshape(-1, 3))
-        pcd_data.estimate_normals()
-        if down_sample:
-            voxel_size = 0.01
-            while len(pcd_data.points)> 1_000_000:
-                pcd_data = pcd_data.voxel_down_sample(voxel_size=voxel_size)
-                voxel_size *= 5
+            pcd_data = o3d.geometry.PointCloud()
+            pcd_data.points = o3d.utility.Vector3dVector(points)
+            pcd_data.colors = o3d.utility.Vector3dVector(image_np.reshape(-1, 3))
+            pcd_data.estimate_normals()
 
-        colors = np.asarray(pcd_data.colors, dtype=np.float32)
-        points = np.asarray(pcd_data.points, dtype=np.float32)
-        normals = np.asarray(pcd_data.normals, dtype=np.float32)
-        pcd = BasicPointCloud(points, colors, normals)
+            if down_sample:
+                voxel_size = 0.01
+                while len(pcd_data.points)> 1_000_000:
+                    pcd_data = pcd_data.voxel_down_sample(voxel_size=voxel_size)
+                    voxel_size *= 5
 
-        return cam_info, pcd, viewpoint_camera
+            colors = np.asarray(pcd_data.colors, dtype=np.float32)
+            points = np.asarray(pcd_data.points, dtype=np.float32)
+            normals = np.asarray(pcd_data.normals, dtype=np.float32)
+            pcd = BasicPointCloud(points, colors, normals)
+
+        return images, cam_info, pcd, viewpoint_camera_list
 
 
     def prepare_data(self, idx, down_sample=True,
@@ -650,33 +691,66 @@ class GaussianTrainer(object):
                     # depth_tensor[depth_tensor < self.near] = self.near
                     self.mono_depth[idx] = depth_tensor.cuda()
         elif self.data_type == "custom":
-            image_name = self.data[idx]
-            original_image = Image.open(image_name).convert("RGB")
-            width, height = original_image.size
-            if min(width, height) > 1000:
-                original_image = original_image.resize(
-                    (width // 2, height // 2), Image.LANCZOS)
+
+            # ------------------------------process 4-dim indices------------------------------
+            image_names = [self.data[i] for i in idx]
+            original_images = [Image.open(image_name).convert("RGB") for image_name in image_names]
+            color_torch_list = []
+            for original_image in original_images:
                 width, height = original_image.size
-            color_torch = torch.from_numpy(np.asarray(
-                original_image) / 255.0).permute(2, 0, 1).float()
-            if pose is None:
-                R = np.eye(3)
-                t = np.zeros(3)
-            else:
-                R = pose[:3, :3].numpy()
-                t = pose[:3, 3].numpy()
-            focal_length_x = self.intrinsic[0, 0]
-            focal_length_y = self.intrinsic[1, 1]
-            FoVy = focal2fov(focal_length_y, height)
-            FoVx = focal2fov(focal_length_x, width)
-            viewpoint_camera = Camera(idx, R, t, FoVx, FoVy, color_torch,
-                                    gt_alpha_mask=None, image_name=image_name,
-                                    intrinsics=self.intrinsic,
-                                    uid=idx, is_co3d=True)
+                if min(width, height) > 1000:
+                    original_image = original_image.resize(
+                                (width // 2, height // 2), Image.LANCZOS)  
+                color_torch_list.append(torch.from_numpy(np.asarray(original_image) / 255.0).permute(2, 0, 1).float())
+            color_torch = torch.stack(color_torch_list, dim=0)
+            # ------------------------------process 4-dim indices------------------------------
+
+
+            # ------------------------------initialize R and T------------------------------ 
+            # R_list, t_list = [], []
+            # for i in range(4):
+            #     if pose is None:
+            #         R_list.append(np.eye(3))
+            #         t_list.append(np.zeros(3))
+            #     else:
+            #         R_list.append(pose[i][:3, :3].numpy())
+            #         t_list.append(pose[i][:3, 3].numpy())
+            
+            R, t, intrinsics = self.load_json()
+            R = torch.tensor(R, dtype=torch.float32)  # [4, 3, 3]
+            t = torch.tensor(t, dtype=torch.float32) 
+
+            print("The shape of R is {}\n".format(R.shape))
+            print("The shape of T is {}".format(t.shape))
+            # ------------------------------initialize R and T------------------------------
+
+            # ------------------------------focal length------------------------------
+            FoVx = np.zeros(1, 4)
+            FoVy = np.zeros(1, 4)
+            for i in range(4):
+                focal_length_x = intrinsics[i, 0, 0]
+                focal_length_y = self.intrinsic[i, 1, 1]
+                FoVy[i] = focal2fov(focal_length_y, height)
+                FoVx[i] = focal2fov(focal_length_x, width)
+            print("FoVx is {}\n".format(FoVx))
+            print("FoVy is {}".format(FoVy))
+            # ------------------------------focal length------------------------------
+
+            # ------------------------------load 4 viewpoint camera------------------------------
+            viewpoint_cameras = []
+            for i in range(4):
+                viewpoint_camera = Camera(idx[i], R[i, ...].numpy(), t[i, ...].numpy(), FoVx[i], FoVy[i], color_torch[i],
+                                  gt_alpha_mask=None, image_name=image_names[i],
+                                  intrinsics=self.intrinsic,
+                                  uid=idx[i], is_co3d=True)
+                viewpoint_cameras.append(viewpoint_camera)
+            # ------------------------------load 4 viewpoint camera------------------------------
+
             if load_depth:
-                if idx not in self.mono_depth:
-                    depth_tensor = self.predict_depth(np.asarray(original_image))
-                    self.mono_depth[idx] = depth_tensor.cuda()
+               for i in range(4):
+                    if idx[i] not in self.mono_depth:
+                        depth_tensor = self.predict_depth(np.asarray(original_images[i]))
+                        self.mono_depth[idx[i]] = depth_tensor.cuda()
         else:
             viewpoint_camera = copy(self.data[idx])
             if getattr(viewpoint_camera, 'original_image', None) is not None:
