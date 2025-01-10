@@ -925,6 +925,7 @@ class CF3DGS_Render:
                     xyz_expanded = self.gaussians._xyz.unsqueeze(1).expand(-1, 4, -1)
 
                     # 将相机中心扩展为 (N, 4, 3)
+                    camera_centers = torch.from_numpy(camera_centers).float()
                     camera_centers = camera_centers.unsqueeze(0).expand(self.gaussians._xyz.shape[0], -1, -1)
                     print("camera_center[None] shape is {}".format(camera_centers[None].shape))
                     print("self.gaussians.get_features.shape[0] is {}".format(self.gaussians.get_features.shape[0]))
