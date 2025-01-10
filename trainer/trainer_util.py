@@ -594,17 +594,19 @@ class GaussianTrainer(object):
 
 
             if load_depth:
-                if idx[i] not in self.mono_depth:
+                current_idx = idx[i]
+                if current_idx not in self.mono_depth:
                     depth_tensor = self.predict_depth(np.asarray(original_image))
                     # depth_tensor = self.depth_model.infer_pil(image_pil, output_type='tensor')
                     depth_tensor[depth_tensor < self.near] = self.near
-                    self.mono_depth[idx] = depth_tensor.cuda()
+                    self.mono_depth[current_idx] = depth_tensor.cuda()
                 else:
-                    depth_tensor = self.mono_depth[idx]
+                    depth_tensor = self.mono_depth[current_idx]
             else:
                 w, h = original_image.size
                 depth_tensor = torch.ones((h, w))
-                self.mono_depth[idx] = depth_tensor.cuda()
+                current_idx = idx[i]
+                self.mono_depth[current_idx] = depth_tensor.cuda()
 
             intr_mat_tensor = torch.from_numpy(
                 intrinsics).float().to(depth_tensor.device)
