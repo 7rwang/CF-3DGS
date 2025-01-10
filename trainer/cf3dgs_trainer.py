@@ -262,7 +262,7 @@ class CFGaussianTrainer(GaussianTrainer):
         self.loss_func.depth_loss_type = "invariant"
         # Set seq_idx manually
         self.gs_render_local.gaussians.seq_idx = 1
-        print("Current seq_idx is".format(self.gs_render_local.gaussians.seq_idx))
+        print("Current seq_idx is{}".format(self.gs_render_local.gaussians.seq_idx))
 
         pipe = copy(self.pipe_cfg)
         optim_opt = copy(self.optim_cfg)
@@ -306,7 +306,7 @@ class CFGaussianTrainer(GaussianTrainer):
             if iteration == optim_opt.iterations:
                 progress_bar.close()
         # print(f"optimizing frame {view_idx:03d}")
-        print(f"optimizing frame {self.gs_render_local.gaussians.seq_idx:03d}")
+        print("optimizing frame {}".format(self.gs_render_local.gaussians.seq_idx))
         print("Previous view_idx is {}".format(view_idx_prev))
         print("Current view_idx is {}".format(view_idx))
         # -------------------------------optimize Gaussian-----------------------------------
