@@ -894,7 +894,7 @@ class CF3DGS_Render:
                         print("camera_center[None] shape is {}".format(camera_center[None].shape))
                         print("self.gaussians.get_features.shape[0] is {}".format(self.gaussians.get_features.shape[0]))
                         camera_center = camera_center[None].repeat(
-                            self.gaussians.get_features.shape[0], 1)
+                            self.gaussians.get_features.shape[0], 1, 1)
                         dir_pp = self.gaussians._xyz - camera_center
                         dir_pp_normalized = dir_pp / \
                             dir_pp.norm(dim=1, keepdim=True)
