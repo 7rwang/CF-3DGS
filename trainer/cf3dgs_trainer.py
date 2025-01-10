@@ -133,14 +133,14 @@ class CFGaussianTrainer(GaussianTrainer):
         radii = [render["radii"] for render in render_pkg]
 
         # -------------------------------- check data.attribute --------------------------------
-        for idx, img in enumerate(images):
-            print(f"Image {idx}: Type={type(img)}, Shape={img.shape}")
-        for idx, pts in enumerate(viewspace_point_tensor):
-            print(f"Viewspace Points {idx}: Type={type(pts)}, Shape={pts.shape}")
-        for idx, vf in enumerate(visibility_filter):
-            print(f"Visibility Filter {idx}: Type={type(vf)}, Shape={vf.shape}")
-        for idx, r in enumerate(radii):
-            print(f"Radii {idx}: Type={type(r)}, Shape={r.shape}")
+        # for idx, img in enumerate(images):
+        #     print(f"Image {idx}: Type={type(img)}, Shape={img.shape}")
+        # for idx, pts in enumerate(viewspace_point_tensor):
+        #     print(f"Viewspace Points {idx}: Type={type(pts)}, Shape={pts.shape}")
+        # for idx, vf in enumerate(visibility_filter):
+        #     print(f"Visibility Filter {idx}: Type={type(vf)}, Shape={vf.shape}")
+        # for idx, r in enumerate(radii):
+        #     print(f"Radii {idx}: Type={type(r)}, Shape={r.shape}")
 
         # -------------------------------- check data.attribute --------------------------------
 
