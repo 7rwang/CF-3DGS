@@ -888,7 +888,7 @@ class CF3DGS_Render:
                     )
                     colors_precomp_list = []
                     for camera in viewpoint_camera:
-                        fidx = viewpoint_camera.uid
+                        fidx = camera.uid
                         camera_center = self.gaussians.get_RT(fidx).inverse()[
                             :3, 3].detach()
                         camera_center = camera_center[None].repeat(
