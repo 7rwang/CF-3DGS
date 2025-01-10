@@ -919,18 +919,18 @@ class CF3DGS_Render:
                      # camera_center = self.gaussians.get_RT(fidx).inverse()[
                     #     :3, 3].detach()
 
-                    _, camera_center, _ = self.load_json("/home/xduo/桌面/CF-3DGS/data/car_4v/calib.json")
+                    _, camera_centers, _ = self.load_json("/home/xduo/桌面/CF-3DGS/data/car_4v/calib.json")
                     
                     # 将高斯体素的位置扩展为 (N, 4, 3)
                     xyz_expanded = self.gaussians._xyz.unsqueeze(1).expand(-1, 4, -1)
 
                     # 将相机中心扩展为 (N, 4, 3)
                     camera_centers = camera_centers.unsqueeze(0).expand(self.gaussians._xyz.shape[0], -1, -1)
-                    print("camera_center[None] shape is {}".format(camera_center[None].shape))
+                    print("camera_center[None] shape is {}".format(camera_centers[None].shape))
                     print("self.gaussians.get_features.shape[0] is {}".format(self.gaussians.get_features.shape[0]))
                     # camera_center = camera_center[None].repeat(
                     #     self.gaussians.get_features.shape[0], 1, 1)
-                    dir_pp = xyz_expanded - camera_center
+                    dir_pp = xyz_expanded - camera_centers
                     dir_pp_normalized = dir_pp / \
                         dir_pp.norm(dim=1, keepdim=True)
                     
