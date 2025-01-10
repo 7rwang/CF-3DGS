@@ -371,6 +371,7 @@ class CFGaussianModel:
         self.rotate_seq = True
         self.rotate_xyz = False
 
+    
     def update_RT_seq(self, poses, idx):
         quats = matrix_to_quaternion(poses[:, :3, :3])
         quats = quats[:, [1, 2, 3, 0]]
@@ -829,42 +830,49 @@ class CF3DGS_Render:
             screenspace_points.retain_grad()
         except:
             pass
-
+        
+        raster_settings_list = []
+        rasterizer = []
+        out_images = []
         # Set up rasterization configuration
-        tanfovx = math.tan(viewpoint_camera.FoVx * 0.5)
-        tanfovy = math.tan(viewpoint_camera.FoVy * 0.5)
+        for vw_camera in viewpoint_camera:
+            tanfovx = math.tan(vw_camera.FoVx * 0.5)
+            tanfovy = math.tan(vw_camera.FoVy * 0.5)
 
-        raster_settings = GaussianRasterizationSettings(
-            image_height=int(viewpoint_camera.image_height),
-            image_width=int(viewpoint_camera.image_width),
-            tanfovx=tanfovx,
-            tanfovy=tanfovy,
-            bg=self.bg_color if not invert_bg_color else 1 - self.bg_color,
-            scale_modifier=scaling_modifier,
-            viewmatrix=viewpoint_camera.world_view_transform,
-            projmatrix=viewpoint_camera.full_proj_transform,
-            sh_degree=self.gaussians.active_sh_degree,
-            campos=viewpoint_camera.camera_center,
-            prefiltered=False,
-            debug=False,
-        )
+            raster_settings = GaussianRasterizationSettings(
+                image_height=int(vw_camera.image_height),
+                image_width=int(vw_camera.image_width),
+                tanfovx=tanfovx,
+                tanfovy=tanfovy,
+                bg=self.bg_color if not invert_bg_color else 1 - self.bg_color,
+                scale_modifier=scaling_modifier,
+                viewmatrix=vw_camera.world_view_transform,
+                projmatrix=vw_camera.full_proj_transform,
+                sh_degree=self.gaussians.active_sh_degree,
+                campos=vw_camera.camera_center,
+                prefiltered=False,
+                debug=False,
+            )
+        
+            raster_settings_list.append(raster_settings)
+            current_rasterizer = GaussianRasterizer(raster_settings=raster_settings)
+            rasterizer.append(current_rasterizer)
+        #raster_setting_list and rasterizer are modified so far
 
-        rasterizer = GaussianRasterizer(raster_settings=raster_settings)
-
-        means3D = self.gaussians.get_xyz
-        means2D = screenspace_points
-        opacity = self.gaussians.get_opacity
+            means3D = self.gaussians.get_xyz
+            means2D = screenspace_points
+            opacity = self.gaussians.get_opacity
 
         # If precomputed 3d covariance is provided, use it. If not, then it will be computed from
         # scaling / rotation by the rasterizer.
-        scales = None
-        rotations = None
-        cov3D_precomp = None
-        if compute_cov3D_python:
-            cov3D_precomp = self.gaussians.get_covariance(scaling_modifier)
-        else:
-            scales = self.gaussians.get_scaling
-            rotations = self.gaussians.get_rotation
+            scales = None
+            rotations = None
+            cov3D_precomp = None
+            if compute_cov3D_python:
+                cov3D_precomp = self.gaussians.get_covariance(scaling_modifier)
+            else:
+                scales = self.gaussians.get_scaling
+                rotations = self.gaussians.get_rotation
 
         # If precomputed colors are provided, use them. Otherwise, if it is desired to precompute colors
         # from SHs in Python, do it. If not, then SH -> RGB conversion will be done by rasterizer.
@@ -896,41 +904,50 @@ class CF3DGS_Render:
             colors_precomp = override_color
 
         # Rasterize visible Gaussians to image, obtain their radii (on screen).
-        out = rasterizer(
-            means3D=means3D,
-            means2D=means2D,
-            shs=shs,
-            colors_precomp=colors_precomp,
-            opacities=opacity,
-            scales=scales,
-            rotations=rotations,
-            cov3D_precomp=cov3D_precomp,
-        )
-        if len(out) == 4:
-            rendered_image, radii, rendered_depth, rendered_alpha = out
-            rendered_image = rendered_image.clamp(0, 1)
+        for idx, current_rasterizer in enumerate(rasterizer):
+            try:
+                out = current_rasterizer(
+                    means3D=means3D,
+                    means2D=means2D,
+                    shs=shs,
+                    colors_precomp=colors_precomp,
+                    opacities=opacity,
+                    scales=scales,
+                    rotations=rotations,
+                    cov3D_precomp=cov3D_precomp,
+                )
+               
+                if len(out) == 4:
+                    rendered_image, radii, rendered_depth, rendered_alpha = out
+                    rendered_image = rendered_image.clamp(0, 1)
 
-            # Those Gaussians that were frustum culled or had a radius of 0 were not visible.
-            # They will be excluded from value updates used in the splitting criteria.
-            return {
-                "image": rendered_image,
-                "depth": rendered_depth,
-                "alpha": rendered_alpha,
-                "viewspace_points": screenspace_points,
-                "visibility_filter": radii > 0,
-                "radii": radii,
-            }
-        elif len(out) == 3:
-            rendered_image, radii, rendered_depth = out
+                    # Those Gaussians that were frustum culled or had a radius of 0 were not visible.
+                    # They will be excluded from value updates used in the splitting criteria.
+                    return {
+                        "image": rendered_image,
+                        "depth": rendered_depth,
+                        "alpha": rendered_alpha,
+                        "viewspace_points": screenspace_points,
+                        "visibility_filter": radii > 0,
+                        "radii": radii,
+                    }
+                elif len(out) == 3:
+                    rendered_image, radii, rendered_depth = out
+                    rendered_image = rendered_image.clamp(0, 1)
+                    output_dict = {
+                        "image": rendered_image,
+                        "depth": rendered_depth,
+                        "viewspace_points": screenspace_points,
+                        "visibility_filter": radii > 0,
+                        "radii": radii,
+                    }
+                else:
+                    raise ValueError(f"Unexpected number of elements in 'out' from Rasterizer {idx}: {len(out)}")
+                
+                out_images.append(output_dict)
+                print(f"Rasterizer {idx} successfully")
+            except Exception as e:
+                print(f"Rasterizer {idx} wrong:{e}")
 
-            rendered_image = rendered_image.clamp(0, 1)
-
-            # Those Gaussians that were frustum culled or had a radius of 0 were not visible.
-            # They will be excluded from value updates used in the splitting criteria.
-            return {
-                "image": rendered_image,
-                "depth": rendered_depth,
-                "viewspace_points": screenspace_points,
-                "visibility_filter": radii > 0,
-                "radii": radii,
-            }
+        return out_images
+      

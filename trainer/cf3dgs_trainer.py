@@ -213,7 +213,14 @@ class CFGaussianTrainer(GaussianTrainer):
         self.gs_render.init_model(pcd,)
         # self.gs_render.init_model(num_pts=300_000,)
         self.gs_render.gaussians.init_RT_seq(self.seq_len)
-        self.gs_render.gaussians.set_seq_idx(view_idx_1)
+        # self.gs_render.gaussians.set_seq_idx(view_idx_1)
+
+        self.gs_render.gaussians.seq_idx = 0
+        # To avoid some issues due to 4-dimensional view_idx so we set seq_idx manually
+        print("Current seq_idx of gaussian is:".format(self.gs_render.gaussians.seq_idx))
+        
+        # self.seq_idx = view_idx_1
+        # 和seq_idx有关系的函数有get_xyz和get_RT这两个函数
         self.gs_render.gaussians.rotate_seq = False
         # Fit relative pose
         print(f"optimizing frame {view_idx_1:03d}")
@@ -253,6 +260,10 @@ class CFGaussianTrainer(GaussianTrainer):
         '''
         # Initialize gaussians
         self.loss_func.depth_loss_type = "invariant"
+        # Set seq_idx manually
+        self.gs_render_local.gaussians.seq_idx = 1
+        print("Current seq_idx is".format(self.gs_render_local.gaussians.seq_idx))
+
         pipe = copy(self.pipe_cfg)
         optim_opt = copy(self.optim_cfg)
         # prepare data          viewpoint_cam 包含四个元素
@@ -270,6 +281,8 @@ class CFGaussianTrainer(GaussianTrainer):
                             desc="Training progress")
         self.gs_render_local.gaussians.training_setup(
             optim_opt, fix_pos=True,)
+        
+        # -------------------------------optimize Gaussian-------------------------------
         for iteration in range(1, optim_opt.iterations+1):
             # Update learning rate
             self.gs_render_local.gaussians.update_learning_rate(iteration)
@@ -292,8 +305,14 @@ class CFGaussianTrainer(GaussianTrainer):
                 progress_bar.update(10)
             if iteration == optim_opt.iterations:
                 progress_bar.close()
+        # print(f"optimizing frame {view_idx:03d}")
+        print(f"optimizing frame {self.gs_render_local.gaussians.seq_idx:03d}")
+        print("Previous view_idx is {}".format(view_idx_prev))
+        print("Current view_idx is {}".format(view_idx))
+        # -------------------------------optimize Gaussian-----------------------------------
 
-        print(f"optimizing frame {view_idx:03d}")
+
+        # -------------------------------optimize R&T----------------------------------------
         viewpoint_cam_ref = self.load_viewpoint_cam(view_idx,
                                                     load_depth=True)
         optim_opt.iterations = 300
@@ -322,9 +341,6 @@ class CFGaussianTrainer(GaussianTrainer):
         # self.visualize(rend_dict_ref, "vis/render_optim.png",
         #                gt_image=viewpoint_cam_ref.original_image.cuda(),
         #                gt_depth=self.mono_depth[view_idx_prev])
-
-
-        # -------------------------------- block need to be modified--------------------------------
         local_model_params = self.gs_render_local.gaussians.capture()
 
         # pcd under view_idx_prev frame
@@ -339,8 +355,10 @@ class CFGaussianTrainer(GaussianTrainer):
 
         self.gs_render.gaussians.rotate_seq = False
         pipe.convert_SHs_python = self.gs_render.gaussians.rotate_seq
-        # -------------------------------- block need to be modified--------------------------------
+        # -------------------------------optimize R&T--------------------------------------------
 
+        # ---------------------------------------------------------------------------------------
+        # Pick camera randomly to guanrantee robustness
         if self.just_reset:
             # 应该是跟这个reset有关系，但是这个reset具体控制的是什么？
             num_iterations = 500
@@ -364,7 +382,9 @@ class CFGaussianTrainer(GaussianTrainer):
                                                                   #   depth_gt=self.mono_depth[fidx],
                                                                   update_distort=False,
                                                                   )
+        # ---------------------------------------------------------------------------------------
 
+        # ---------------------------------------------------------------------------------------
         num_iterations = self.single_step
         if max(view_idx, view_idx_prev) > min(int(self.seq_len * 0.8), self.seq_len-5):
             num_iterations = 1000
@@ -414,7 +434,7 @@ class CFGaussianTrainer(GaussianTrainer):
 
             if iteration == num_iterations:
                 progress_bar.close()
-
+        # ---------------------------------------------------------------------------------------
         return pcd, local_model_params
 
     def create_pcd_from_render(self, render_dict, viewpoint_cam):
@@ -458,10 +478,11 @@ class CFGaussianTrainer(GaussianTrainer):
         optim_opt = copy(self.optim_cfg)
         result_path = f"output/{expname}/{self.category}_{self.seq_name}"
         os.makedirs(result_path, exist_ok=True)
+        
+        # -----------------------------Generate gt of poses-----------------------------
 
         pose_dict = dict()
         poses_gt = []
-        # 你妈的这里是在干什么 这个for循环到底是在读啥 没懂
         for seq_data in self.data:
             ''' 你妈的这里的seq_data是啥样的？
                 你妈的这里的self.data为啥type是camera，咋调用的？
@@ -484,8 +505,7 @@ class CFGaussianTrainer(GaussianTrainer):
         max_frame = self.seq_len
         start_frame = 1
         end_frame = max_frame
-
-
+        # -----------------------------Generate gt of poses-----------------------------
 
         os.makedirs(f"{result_path}/pose", exist_ok=True)
         os.makedirs(f"{result_path}/mesh", exist_ok=True)
@@ -495,7 +515,7 @@ class CFGaussianTrainer(GaussianTrainer):
         reverse = False
         # 主要负责参数初始化、优化配置
         for epoch in range(num_eppch):
-            gauss_params = self= (
+            gauss_params = self.init_two_view(
                 0, end_frame, pipe, copy(self.optim_cfg))
             
             self.global_iteration = 0
