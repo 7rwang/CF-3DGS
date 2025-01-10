@@ -983,36 +983,41 @@ class CF3DGS_Render:
                     rotations=rotations,
                     cov3D_precomp=cov3D_precomp,
                 )
-               
-                if len(out) == 4:
-                    rendered_image, radii, rendered_depth, rendered_alpha = out
-                    rendered_image = rendered_image.clamp(0, 1)
-
-                    # Those Gaussians that were frustum culled or had a radius of 0 were not visible.
-                    # They will be excluded from value updates used in the splitting criteria.
-                    return {
-                        "image": rendered_image,
-                        "depth": rendered_depth,
-                        "alpha": rendered_alpha,
-                        "viewspace_points": screenspace_points,
-                        "visibility_filter": radii > 0,
-                        "radii": radii,
-                    }
-                elif len(out) == 3:
-                    rendered_image, radii, rendered_depth = out
-                    rendered_image = rendered_image.clamp(0, 1)
-                    output_dict = {
-                        "image": rendered_image,
-                        "depth": rendered_depth,
-                        "viewspace_points": screenspace_points,
-                        "visibility_filter": radii > 0,
-                        "radii": radii,
-                    }
-                else:
-                    raise ValueError(f"Unexpected number of elements in 'out' from Rasterizer {idx}: {len(out)}")
+                print(f"Rasterizer {idx} output type: {type(out)}, length: {len(out)}")
                 
+                if isinstance(out, (list, tuple)):
+                    if len(out) == 4:
+                        rendered_image, radii, rendered_depth, rendered_alpha = out
+                        rendered_image = rendered_image.clamp(0, 1)
+
+                        # Those Gaussians that were frustum culled or had a radius of 0 were not visible.
+                        # They will be excluded from value updates used in the splitting criteria.
+                        output_dict = {
+                            "image": rendered_image,
+                            "depth": rendered_depth,
+                            "alpha": rendered_alpha,
+                            "viewspace_points": screenspace_points,
+                            "visibility_filter": radii > 0,
+                            "radii": radii,
+                        }
+                    elif len(out) == 3:
+                        rendered_image, radii, rendered_depth = out
+                        rendered_image = rendered_image.clamp(0, 1)
+                        output_dict = {
+                            "image": rendered_image,
+                            "depth": rendered_depth,
+                            "viewspace_points": screenspace_points,
+                            "visibility_filter": radii > 0,
+                            "radii": radii,
+                        }
+                    else:
+                        raise ValueError(f"Unexpected number of elements in 'out' from Rasterizer {idx}: {len(out)}")
+                else:
+                    raise TypeError(f"Unexpected type of 'out' from Rasterizer {idx}: {type(out)}")
+   
                 out_images.append(output_dict)
                 print(f"Rasterizer {idx} successfully")
+                
             except Exception as e:
                 print(f"Rasterizer {idx} wrong:{e}")
 
