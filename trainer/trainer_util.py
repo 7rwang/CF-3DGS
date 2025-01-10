@@ -705,7 +705,6 @@ class GaussianTrainer(object):
             color_torch = torch.stack(color_torch_list, dim=0)
             # ------------------------------process 4-dim indices------------------------------
 
-
             # ------------------------------initialize R and T------------------------------ 
             # R_list, t_list = [], []
             # for i in range(4):
@@ -716,7 +715,7 @@ class GaussianTrainer(object):
             #         R_list.append(pose[i][:3, :3].numpy())
             #         t_list.append(pose[i][:3, 3].numpy())
             
-            R, t, intrinsics = self.load_json()
+            R, t, intrinsics = self.load_json("/home/xduo/桌面/CF-3DGS/data/car_4v/calib.json")
             R = torch.tensor(R, dtype=torch.float32)  # [4, 3, 3]
             t = torch.tensor(t, dtype=torch.float32) 
 
@@ -734,16 +733,16 @@ class GaussianTrainer(object):
                 FoVx[i] = focal2fov(focal_length_x, width)
             print("FoVx is {}\n".format(FoVx))
             print("FoVy is {}".format(FoVy))
-            # ------------------------------focal length------------------------------
+            # ------------------------------focal length-------------------------------
 
             # ------------------------------load 4 viewpoint camera------------------------------
-            viewpoint_cameras = []
+            viewpoint_camera = []
             for i in range(4):
-                viewpoint_camera = Camera(idx[i], R[i, ...].numpy(), t[i, ...].numpy(), FoVx[i], FoVy[i], color_torch[i],
+                single_viewpoint_camera = Camera(idx[i], R[i, ...].numpy(), t[i, ...].numpy(), FoVx[i], FoVy[i], color_torch[i],
                                   gt_alpha_mask=None, image_name=image_names[i],
                                   intrinsics=self.intrinsic,
                                   uid=idx[i], is_co3d=True)
-                viewpoint_cameras.append(viewpoint_camera)
+                viewpoint_camera.append(single_viewpoint_camera)
             # ------------------------------load 4 viewpoint camera------------------------------
 
             if load_depth:
