@@ -272,6 +272,8 @@ class CFGaussianModel:
                 feat_lr_factor, "name": "rotation"}
         ]
         print("training_args.position_lr_max_steps is {}".format(training_args.position_lr_max_steps))
+        print("training_args is {}".format(training_args))
+        
         self.optimizer = torch.optim.Adam(l, lr=0.0, eps=1e-15)
         self.xyz_scheduler_args = get_expon_lr_func(lr_init=training_args.position_lr_init*self.spatial_lr_scale,
                                                     lr_final=training_args.position_lr_final*self.spatial_lr_scale,
