@@ -173,14 +173,15 @@ class CFGaussianTrainer(GaussianTrainer):
                 # Keep track of max radii in image-space for pruning
                 for cam_idx in range(4):
                     try:
-                        gs_render.gaussians.max_radii2D[visibility_filter] = torch.max(gs_render.gaussians.max_radii2D[visibility_filter],
-                                                                                    radii[visibility_filter])
+                        gs_render.gaussians.max_radii2D[visibility_filter] = torch.max(
+                                                                gs_render.gaussians.max_radii2D[visibility_filter[cam_idx]],
+                                                                radii[visibility_filter[cam_idx]])
                     except Exception as e:
                         print(f"Error updating max_radii2D for camera {cam_idx}: {e}")
                         pdb.set_trace()
 
                     gs_render.gaussians.add_densification_stats(
-                        viewspace_point_tensor, visibility_filter)
+                        viewspace_point_tensor[cam_idx], visibility_filter[cam_idx])
 
                 if iteration > optim_opt.densify_from_iter and iteration % optim_opt.densification_interval == 0:
                     size_threshold = 20 if iteration > optim_opt.opacity_reset_interval else None
