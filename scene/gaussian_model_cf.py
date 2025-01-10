@@ -145,7 +145,7 @@ class CFGaussianModel:
 
                 if isinstance(idx, (list, tuple, torch.Tensor, np.ndarray)):
                     Rt = [self.P[i].retr().matrix() for i in idx]
-                    Rt = torch.stack([torch.from_numpy(m).float() for m in Rt]).to("cuda")
+                    Rt = torch.stack([m.float() for m in Rt]).to("cuda")
                 else:
                     Rt = self.P[idx].retr().matrix()
                     Rt = torch.from_numpy(Rt).float().to("cuda")
