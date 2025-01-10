@@ -891,6 +891,8 @@ class CF3DGS_Render:
                         fidx = camera.uid
                         camera_center = self.gaussians.get_RT(fidx).inverse()[
                             :3, 3].detach()
+                        print("camera_center[None] shape is {}".format(camera_center[None].shape))
+                        print("self.gaussians.get_features.shape[0] is {}".format(self.gaussians.get_features.shape[0]))
                         camera_center = camera_center[None].repeat(
                             self.gaussians.get_features.shape[0], 1)
                         dir_pp = self.gaussians._xyz - camera_center
