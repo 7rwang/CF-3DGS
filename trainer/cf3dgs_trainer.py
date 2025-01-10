@@ -171,13 +171,16 @@ class CFGaussianTrainer(GaussianTrainer):
             self.just_reset = False
             if iteration < optim_opt.densify_until_iter and densify:
                 # Keep track of max radii in image-space for pruning
-                try:
-                    gs_render.gaussians.max_radii2D[visibility_filter] = torch.max(gs_render.gaussians.max_radii2D[visibility_filter],
-                                                                                   radii[visibility_filter])
-                except:
-                    pdb.set_trace()
-                gs_render.gaussians.add_densification_stats(
-                    viewspace_point_tensor, visibility_filter)
+                for cam_idx in range(4):
+                    try:
+                        gs_render.gaussians.max_radii2D[visibility_filter] = torch.max(gs_render.gaussians.max_radii2D[visibility_filter],
+                                                                                    radii[visibility_filter])
+                    except Exception as e:
+                        print(f"Error updating max_radii2D for camera {cam_idx}: {e}")
+                        pdb.set_trace()
+
+                    gs_render.gaussians.add_densification_stats(
+                        viewspace_point_tensor, visibility_filter)
 
                 if iteration > optim_opt.densify_from_iter and iteration % optim_opt.densification_interval == 0:
                     size_threshold = 20 if iteration > optim_opt.opacity_reset_interval else None
@@ -191,11 +194,12 @@ class CFGaussianTrainer(GaussianTrainer):
             if update_gaussians:
                 gs_render.gaussians.optimizer.step()
                 gs_render.gaussians.optimizer.zero_grad(set_to_none=True)
+
             if getattr(gs_render.gaussians, "camera_optimizer", None) is not None and update_cam:
-                current_fidx = gs_render.gaussians.seq_idx
-                gs_render.gaussians.camera_optimizer[current_fidx].step()
-                gs_render.gaussians.camera_optimizer[current_fidx].zero_grad(
-                    set_to_none=True)
+                for cam_idx in range(4):
+                    gs_render.gaussians.camera_optimizer[cam_idx].step()
+                    gs_render.gaussians.camera_optimizer[cam_idx].zero_grad(
+                        set_to_none=True)
 
 
         return loss_dict, render_pkg, psnr_train
