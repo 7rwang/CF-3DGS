@@ -45,7 +45,7 @@ from kornia.geometry.camera import project_points
 
 import pdb
 
-from .trainer import GaussianTrainer
+from .trainer_util import GaussianTrainer
 from .losses import Loss, compute_scale_and_shift
 # 屎 你用你妈的相对导入啊
 
@@ -218,7 +218,7 @@ class CFGaussianTrainer(GaussianTrainer):
         self.gs_render.gaussians.seq_idx = 0
         # To avoid some issues due to 4-dimensional view_idx so we set seq_idx manually
         print("Current seq_idx of gaussian is:".format(self.gs_render.gaussians.seq_idx))
-        
+
         # self.seq_idx = view_idx_1
         # 和seq_idx有关系的函数有get_xyz和get_RT这两个函数
         self.gs_render.gaussians.rotate_seq = False
