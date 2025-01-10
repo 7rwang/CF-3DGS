@@ -217,7 +217,7 @@ class CFGaussianTrainer(GaussianTrainer):
 
         self.gs_render.gaussians.seq_idx = 0
         # To avoid some issues due to 4-dimensional view_idx so we set seq_idx manually
-        print("Current seq_idx of gaussian is:".format(self.gs_render.gaussians.seq_idx))
+        print("Current seq_idx of gaussian is:{}".format(self.gs_render.gaussians.seq_idx))
 
         # self.seq_idx = view_idx_1
         # 和seq_idx有关系的函数有get_xyz和get_RT这两个函数
@@ -235,7 +235,7 @@ class CFGaussianTrainer(GaussianTrainer):
             loss, rend_dict, psnr_train = self.train_step(self.gs_render,
                                                           viewpoint_cam, iteration,
                                                           pipe, optim_opt,
-                                                          depth_gt=self.mono_depth[view_idx_1],
+                                                          depth_gt=None,
                                                           update_gaussians=True,
                                                           update_cam=False,
                                                           )

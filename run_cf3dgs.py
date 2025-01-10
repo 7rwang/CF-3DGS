@@ -42,6 +42,7 @@ if __name__ == "__main__":
     # teddybear/34_1403_4393
     data_path = model_cfg.source_path
     trainer = CFGaussianTrainer(data_path, model_cfg, pipe_cfg, optim_cfg)
+    # print("max step is {}".format(optim_cfg.position_lr_max_steps))
     start_time = datetime.now()
     if model_cfg.mode == "train":
         trainer.train_from_progressive()
