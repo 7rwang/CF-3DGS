@@ -273,7 +273,7 @@ class CFGaussianModel:
         ]
         print("training_args.position_lr_max_steps is {}".format(training_args.position_lr_max_steps))
         print("training_args is {}".format(training_args))
-        
+
         self.optimizer = torch.optim.Adam(l, lr=0.0, eps=1e-15)
         self.xyz_scheduler_args = get_expon_lr_func(lr_init=training_args.position_lr_init*self.spatial_lr_scale,
                                                     lr_final=training_args.position_lr_final*self.spatial_lr_scale,
@@ -886,33 +886,52 @@ class CF3DGS_Render:
                     shs_view = self.gaussians.get_features.transpose(1, 2).view(
                         -1, 3, (self.gaussians.max_sh_degree + 1) ** 2
                     )
-                    fidx = viewpoint_camera.uid
-                    camera_center = self.gaussians.get_RT(fidx).inverse()[
-                        :3, 3].detach()
-                    camera_center = camera_center[None].repeat(
-                        self.gaussians.get_features.shape[0], 1)
-                    dir_pp = self.gaussians._xyz - camera_center
-                    dir_pp_normalized = dir_pp / \
-                        dir_pp.norm(dim=1, keepdim=True)
-                    sh2rgb = eval_sh(
-                        self.gaussians.active_sh_degree, shs_view, dir_pp_normalized
-                    )
-                    colors_precomp = torch.clamp_min(sh2rgb + 0.5, 0.0)
+                    colors_precomp_list = []
+                    for camera in viewpoint_camera:
+                        fidx = viewpoint_camera.uid
+                        camera_center = self.gaussians.get_RT(fidx).inverse()[
+                            :3, 3].detach()
+                        camera_center = camera_center[None].repeat(
+                            self.gaussians.get_features.shape[0], 1)
+                        dir_pp = self.gaussians._xyz - camera_center
+                        dir_pp_normalized = dir_pp / \
+                            dir_pp.norm(dim=1, keepdim=True)
+                        sh2rgb = eval_sh(
+                            self.gaussians.active_sh_degree, shs_view, dir_pp_normalized
+                        )
+                        colors_precomp = torch.clamp_min(sh2rgb + 0.5, 0.0)
+
+                    colors_precomp = torch.stack(colors_precomp_list, dim=0)
                 else:
                     colors_precomp = self.gaussians.get_features_noview
             else:
                 shs = self.gaussians.get_features
         else:
-            colors_precomp = override_color
+            override_color_list = []
+            for camera in viewpoint_camera:
+                override_color_list.append(override_color)
+                
+            colors_precomp = torch.stack(override_color_list, dim=0)
+
+          
 
         # Rasterize visible Gaussians to image, obtain their radii (on screen).
         for idx, current_rasterizer in enumerate(rasterizer):
             try:
+                current_colors_precomp = colors_precomp[idx]
+        
+                # 如果其他参数也是按摄像机批处理的，例如 opacities, scales, rotations, cov3D_precomp
+                # 则需要提取对应的部分。例如：
+                # current_opacity = opacity[idx]
+                # current_scales = scales[idx]
+                # current_rotations = rotations[idx]
+                # current_cov3D_precomp = cov3D_precomp[idx]
+                # 如果这些参数不是批处理的，可以直接传递
                 out = current_rasterizer(
                     means3D=means3D,
                     means2D=means2D,
                     shs=shs,
-                    colors_precomp=colors_precomp,
+                    colors_precomp=current_colors_precomp,
                     opacities=opacity,
                     scales=scales,
                     rotations=rotations,
