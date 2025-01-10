@@ -513,10 +513,11 @@ class CFGaussianTrainer(GaussianTrainer):
         num_eppch = 1
         batch_size = 4
         reverse = False
+        init_idx = [0, 1, 2, 3]
         # 主要负责参数初始化、优化配置
         for epoch in range(num_eppch):
             gauss_params = self.init_two_view(
-                0, end_frame, pipe, copy(self.optim_cfg))
+                init_idx, end_frame, pipe, copy(self.optim_cfg))
             
             self.global_iteration = 0
             optim_opt = copy(self.optim_cfg)
@@ -527,7 +528,7 @@ class CFGaussianTrainer(GaussianTrainer):
             self.match_results = OrderedDict()
 
             # 这个for循环应该是需要修改的，这里应该就是在读取图像
-            previous_batch_fidx = None
+            previous_batch_fidx = init_idx
             for i in range(start_frame, end_frame, batch_size):
                 curr_batch_fidx = range(i, min(i + batch_size, end_frame))
                 print(f"Current batch_fidx: {curr_batch_fidx}")
