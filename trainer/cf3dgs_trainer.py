@@ -173,7 +173,7 @@ class CFGaussianTrainer(GaussianTrainer):
                 # Keep track of max radii in image-space for pruning
                 for cam_idx in range(4):
                     try:
-                        gs_render.gaussians.max_radii2D[visibility_filter] = torch.max(
+                        gs_render.gaussians.max_radii2D[visibility_filter[cam_idx]] = torch.max(
                                                                 gs_render.gaussians.max_radii2D[visibility_filter[cam_idx]],
                                                                 radii[visibility_filter[cam_idx]])
                     except Exception as e:
