@@ -23,7 +23,7 @@ from utils.general_utils import strip_symmetric, build_scaling_rotation
 from utils.sh_utils import eval_sh
 from scipy.spatial.transform import Rotation as R
 import math
-
+import json
 
 from diff_gaussian_rasterization import (
     GaussianRasterizationSettings,
@@ -766,6 +766,32 @@ class CF3DGS_Render:
             device="cuda",
         )
 
+    def load_json(self, json_file=None):
+        if json_file is not None:
+            intrinsics = np.zeros((4, 3, 3))
+            R = np.zeros((4, 3, 3))
+            t = np.zeros((4, 3))
+
+            if not os.path.exists(json_file):
+                print(f"Erroe! File'{json_file}' not exist")
+                return None
+            try:
+                with open('{}'.format(json_file), 'r', encoding='utf-8') as f:
+                    data = json.load(f)
+                    print(f'Load json file in{json_file} successfully!')
+                    for i, key in enumerate(data):
+                        intrinsics[i, ...] = np.asarray(
+                                        data[key]['intrinsic'])[:3, :3]
+                        R[i, ...] = np.asarray(
+                                        data[key]['lidar2image'])[:3, :3]
+                        t[i, ...] = np.asarray(
+                                        data[key]['lidar2image'])[:3, 3]
+                return R, t, intrinsics 
+            except json.JSONDecodeError as e:
+                print(f"Error! Cannot load file{e}")
+            except Exception as e:
+                print(f"Error! Cannot load file{e}")
+
     def init_model(self, input=None, num_pts=10000, radius=1.0):
 
         if input is None:
@@ -879,6 +905,7 @@ class CF3DGS_Render:
         # If precomputed colors are provided, use them. Otherwise, if it is desired to precompute colors
         # from SHs in Python, do it. If not, then SH -> RGB conversion will be done by rasterizer.
         shs = None
+
         colors_precomp = None
         if colors_precomp is None:
             if convert_SHs_python:
@@ -886,23 +913,38 @@ class CF3DGS_Render:
                     shs_view = self.gaussians.get_features.transpose(1, 2).view(
                         -1, 3, (self.gaussians.max_sh_degree + 1) ** 2
                     )
-                    colors_precomp_list = []
-                    for camera in viewpoint_camera:
-                        fidx = camera.uid
-                        camera_center = self.gaussians.get_RT(fidx).inverse()[
-                            :3, 3].detach()
-                        print("camera_center[None] shape is {}".format(camera_center[None].shape))
-                        print("self.gaussians.get_features.shape[0] is {}".format(self.gaussians.get_features.shape[0]))
-                        camera_center = camera_center[None].repeat(
-                            self.gaussians.get_features.shape[0], 1, 1)
-                        dir_pp = self.gaussians._xyz - camera_center
-                        dir_pp_normalized = dir_pp / \
-                            dir_pp.norm(dim=1, keepdim=True)
-                        sh2rgb = eval_sh(
-                            self.gaussians.active_sh_degree, shs_view, dir_pp_normalized
-                        )
-                        colors_precomp = torch.clamp_min(sh2rgb + 0.5, 0.0)
+                    # colors_precomp_list = []
+                    # for camera in viewpoint_camera:
+                    # fidx = camera.uid
+                     # camera_center = self.gaussians.get_RT(fidx).inverse()[
+                    #     :3, 3].detach()
 
+                    _, camera_center, _ = self.load_json("/home/xduo/桌面/CF-3DGS/data/car_4v/calib.json")
+                    
+                    # 将高斯体素的位置扩展为 (N, 4, 3)
+                    xyz_expanded = self.gaussians._xyz.unsqueeze(1).expand(-1, 4, -1)
+
+                    # 将相机中心扩展为 (N, 4, 3)
+                    camera_centers = camera_centers.unsqueeze(0).expand(self.gaussians._xyz.shape[0], -1, -1)
+                    print("camera_center[None] shape is {}".format(camera_center[None].shape))
+                    print("self.gaussians.get_features.shape[0] is {}".format(self.gaussians.get_features.shape[0]))
+                    # camera_center = camera_center[None].repeat(
+                    #     self.gaussians.get_features.shape[0], 1, 1)
+                    dir_pp = xyz_expanded - camera_center
+                    dir_pp_normalized = dir_pp / \
+                        dir_pp.norm(dim=1, keepdim=True)
+                    
+                    colors_precomp_list = []
+                    for cam_idx in range(4):
+                        sh2rgb = eval_sh(
+                            self.gaussians.active_sh_degree,
+                            shs_view,
+                             dir_pp_normalized[:, cam_idx]  # (N, 3)
+                            )
+                        rgb = torch.clamp_min(sh2rgb + 0.5, 0.0)
+                        colors_precomp_list.append(rgb)
+            
+                    # 堆叠所有相机的结果 (4, N, 3)
                     colors_precomp = torch.stack(colors_precomp_list, dim=0)
                 else:
                     colors_precomp = self.gaussians.get_features_noview
