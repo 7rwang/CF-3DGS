@@ -223,7 +223,7 @@ class CFGaussianTrainer(GaussianTrainer):
         # 和seq_idx有关系的函数有get_xyz和get_RT这两个函数
         self.gs_render.gaussians.rotate_seq = False
         # Fit relative pose
-        print(f"optimizing frame {view_idx_1:03d}")
+        print(f"optimizing frame {view_idx_1}")
         optim_opt.iterations = 1000
         optim_opt.densify_from_iter = optim_opt.iterations + 1
         progress_bar = tqdm(range(optim_opt.iterations),
