@@ -42,6 +42,9 @@ def get_expon_lr_func(
     :return HoF which takes step as input
     """
 
+    if not isinstance(max_steps, int) or max_steps <= 0:
+        raise ValueError(f"'max_steps' must be a positive integer, got {max_steps}")
+
     def helper(step):
         if step < 0 or (lr_init == 0.0 and lr_final == 0.0):
             # Disable this parameter
