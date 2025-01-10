@@ -175,7 +175,7 @@ class CFGaussianTrainer(GaussianTrainer):
                     try:
                         gs_render.gaussians.max_radii2D[visibility_filter[cam_idx]] = torch.max(
                                                                 gs_render.gaussians.max_radii2D[visibility_filter[cam_idx]],
-                                                                radii[visibility_filter[cam_idx]])
+                                                                radii[cam_idx][visibility_filter[cam_idx]])
                     except Exception as e:
                         print(f"Error updating max_radii2D for camera {cam_idx}: {e}")
                         pdb.set_trace()
