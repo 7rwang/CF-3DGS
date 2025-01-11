@@ -726,8 +726,8 @@ class GaussianTrainer(object):
             # ------------------------------initialize R and T------------------------------
 
             # ------------------------------focal length------------------------------
-            FoVx = np.zeros((1, 4))
-            FoVy = np.zeros((1, 4))
+            FoVx = np.zeros(4)
+            FoVy = np.zeros(4)
             for i in range(4):
                 focal_length_x = intrinsics[i, 0, 0]
                 focal_length_y = intrinsics[i, 1, 1]
