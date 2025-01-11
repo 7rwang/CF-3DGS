@@ -422,7 +422,7 @@ class CFGaussianTrainer(GaussianTrainer):
                     fidx = [start_point, start_point+1, start_point+2, start_point+3] 
             
 
-            print("fidx is {}".format(fidx))
+            # print("fidx is {}".format(fidx))
             self.global_iteration += 1
             if self.gs_render.gaussians.rotate_seq:
                 self.gs_render.gaussians.set_seq_idx(fidx)

@@ -938,6 +938,9 @@ class CF3DGS_Render:
                     # 将相机中心扩展为 (N, 4, 3)
                     camera_centers = torch.from_numpy(camera_centers).float().to(device)
                     camera_centers = camera_centers.unsqueeze(0).expand(self.gaussians._xyz.shape[0], -1, -1)
+
+                    print("camera_centers shape is {}".format(camera_centers.shape))
+                    print("xyz_expanded shape is {}".format(xyz_expanded.shape))
                     # print("camera_center[None] shape is {}".format(camera_centers[None].shape))
                     # print("self.gaussians.get_features.shape[0] is {}".format(self.gaussians.get_features.shape[0]))
                     # camera_center = camera_center[None].repeat(
@@ -958,8 +961,10 @@ class CF3DGS_Render:
             
                     # 堆叠所有相机的结果 (4, N, 3)
                     colors_precomp = torch.stack(colors_precomp_list, dim=0)
+                    print("1_colors_precomp shape is {}".format(colors_precomp.shape))
                 else:
                     colors_precomp = self.gaussians.get_features_noview
+                    print("2_colors_precomp shape is {}".format(colors_precomp.shape))
             else:
                 shs = self.gaussians.get_features
         else:
@@ -990,13 +995,7 @@ class CF3DGS_Render:
                 # print("colors_precomp shape:", colors_precomp.shape)
                 # print("means3D shape:", means3D.shape)
                 # print("means2D shape:", means2D.shape)
-                # 如果其他参数也是按摄像机批处理的，例如 opacities, scales, rotations, cov3D_precomp
-                # 则需要提取对应的部分。例如：
-                # current_opacity = opacity[idx]
-                # current_scales = scales[idx]
-                # current_rotations = rotations[idx]
-                # current_cov3D_precomp = cov3D_precomp[idx]
-                # 如果这些参数不是批处理的，可以直接传递
+        
                 out = current_rasterizer(
                     means3D=means3D,
                     means2D=means2D,
