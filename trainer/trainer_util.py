@@ -699,9 +699,9 @@ class GaussianTrainer(object):
 
             # ------------------------------process 4-dim indices------------------------------、
             # print("idx:", idx)
-            # print("self.data is: {}".format(self.data))
+            print("self.data is: {}".format(self.data))
             image_names = [self.data[i] for i in idx]
-            # print("image_names:", image_names)
+            print("image_names:", image_names)
             original_images = [Image.open(image_name).convert("RGB") for image_name in image_names]
             color_torch_list = []
             for original_image in original_images:
