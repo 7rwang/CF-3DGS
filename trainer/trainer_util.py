@@ -74,7 +74,7 @@ class GaussianTrainer(object):
             try:
                 with open('{}'.format(json_file), 'r', encoding='utf-8') as f:
                     data = json.load(f)
-                    print(f'Load json file in{json_file} successfully!')
+                    # print(f'Load json file in{json_file} successfully!')
                     for i, key in enumerate(data):
                         intrinsics[i, ...] = np.asarray(
                                         data[key]['intrinsic'])[:3, :3]
@@ -726,8 +726,8 @@ class GaussianTrainer(object):
             # ------------------------------initialize R and T------------------------------
 
             # ------------------------------focal length------------------------------
-            FoVx = np.zeros(1, 4)
-            FoVy = np.zeros(1, 4)
+            FoVx = np.zeros((1, 4))
+            FoVy = np.zeros((1, 4))
             for i in range(4):
                 focal_length_x = intrinsics[i, 0, 0]
                 focal_length_y = self.intrinsic[i, 1, 1]

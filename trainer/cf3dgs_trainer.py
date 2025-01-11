@@ -509,7 +509,6 @@ class CFGaussianTrainer(GaussianTrainer):
             poses_gt.append(torch.from_numpy(pose))
         pose_dict["poses_gt"] = torch.stack(poses_gt)
         max_frame = self.seq_len
-        start_frame = 1
         end_frame = max_frame
         # -----------------------------Generate gt of poses-----------------------------
 
@@ -520,6 +519,7 @@ class CFGaussianTrainer(GaussianTrainer):
         batch_size = 4
         reverse = False
         init_idx = [0, 1, 2, 3]
+        start_frame = max(previous_batch_fidx) + 1
         # 主要负责参数初始化、优化配置
         for epoch in range(num_epoch):
             gauss_params = self.init_two_view(

@@ -906,10 +906,10 @@ class CF3DGS_Render:
         # from SHs in Python, do it. If not, then SH -> RGB conversion will be done by rasterizer.
         shs = None
         colors_precomp = None
-        print("Entering color precomputation")
-        print("convert_SHs_python:", convert_SHs_python)
-        print("self.view_dependent:", self.view_dependent)
-        print("colors_precomp is None:", colors_precomp is None)
+        # print("Entering color precomputation")
+        # print("convert_SHs_python:", convert_SHs_python)
+        # print("self.view_dependent:", self.view_dependent)
+        # print("colors_precomp is None:", colors_precomp is None)
 
         if colors_precomp is None:
             if convert_SHs_python:
@@ -932,8 +932,8 @@ class CF3DGS_Render:
                     # 将相机中心扩展为 (N, 4, 3)
                     camera_centers = torch.from_numpy(camera_centers).float().to(device)
                     camera_centers = camera_centers.unsqueeze(0).expand(self.gaussians._xyz.shape[0], -1, -1)
-                    print("camera_center[None] shape is {}".format(camera_centers[None].shape))
-                    print("self.gaussians.get_features.shape[0] is {}".format(self.gaussians.get_features.shape[0]))
+                    # print("camera_center[None] shape is {}".format(camera_centers[None].shape))
+                    # print("self.gaussians.get_features.shape[0] is {}".format(self.gaussians.get_features.shape[0]))
                     # camera_center = camera_center[None].repeat(
                     #     self.gaussians.get_features.shape[0], 1, 1)
                     dir_pp = xyz_expanded - camera_centers
@@ -965,16 +965,16 @@ class CF3DGS_Render:
             colors_precomp = torch.stack(override_color_list, dim=0)
 
           
-        print("colors_precomp type:", type(colors_precomp)) 
-        print("colors_precomp shape:", colors_precomp.shape if hasattr(colors_precomp, 'shape') else None)
-        print("rasterizer length:", len(rasterizer))
-        # Rasterize visible Gaussians to image, obtain their radii (on screen).
-        print("Is rasterizer empty?", len(rasterizer) == 0)
-        print("rasterizer type:", type(rasterizer))
-        print("Is rasterizer iterable?", hasattr(rasterizer, '__iter__'))
+        # print("colors_precomp type:", type(colors_precomp)) 
+        # print("colors_precomp shape:", colors_precomp.shape if hasattr(colors_precomp, 'shape') else None)
+        # print("rasterizer length:", len(rasterizer))
+        # # Rasterize visible Gaussians to image, obtain their radii (on screen).
+        # print("Is rasterizer empty?", len(rasterizer) == 0)
+        # print("rasterizer type:", type(rasterizer))
+        # print("Is rasterizer iterable?", hasattr(rasterizer, '__iter__'))
 
         for idx, current_rasterizer in enumerate(rasterizer):
-            print(f"Processing rasterizer {idx}")
+            # print(f"Processing rasterizer {idx}")
             try:
                 if colors_precomp is not None:
                     current_colors_precomp = colors_precomp[idx]
@@ -998,7 +998,7 @@ class CF3DGS_Render:
                     rotations=rotations,
                     cov3D_precomp=cov3D_precomp,
                 )
-                print(f"Rasterizer {idx} output type: {type(out)}, length: {len(out)}")
+                # print(f"Rasterizer {idx} output type: {type(out)}, length: {len(out)}")
                 
                 if isinstance(out, (list, tuple)):
                     if len(out) == 4:
