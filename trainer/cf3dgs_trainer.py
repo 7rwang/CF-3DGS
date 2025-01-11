@@ -416,14 +416,15 @@ class CFGaussianTrainer(GaussianTrainer):
             else:
                 earlier_frames = [f for f in range(1, last_frame+1) if f in available_frames]
                 fidx = random.choice(earlier_frames) if earlier_frames else 1
+            
             fidx = (fidx // 4) * 4
 
             if fidx + 3 > max(view_idx):
                 fidx = max(view_idx) - 3
                 fidx = (fidx // 4) * 4
-                
-            fidx = [fidx + i for i in range(4) if fidx + i in available_frames]
 
+            fidx = [fidx + i for i in range(4) if fidx + i in available_frames]
+            print("fixd is {}".format(fidx))
             self.global_iteration += 1
             if self.gs_render.gaussians.rotate_seq:
                 self.gs_render.gaussians.set_seq_idx(fidx)
