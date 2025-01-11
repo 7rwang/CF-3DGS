@@ -730,7 +730,7 @@ class GaussianTrainer(object):
             FoVy = np.zeros((1, 4))
             for i in range(4):
                 focal_length_x = intrinsics[i, 0, 0]
-                focal_length_y = self.intrinsic[i, 1, 1]
+                focal_length_y = intrinsics[i, 1, 1]
                 FoVy[i] = focal2fov(focal_length_y, height)
                 FoVx[i] = focal2fov(focal_length_x, width)
             print("FoVx is {}\n".format(FoVx))

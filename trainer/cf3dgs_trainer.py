@@ -149,7 +149,7 @@ class CFGaussianTrainer(GaussianTrainer):
         loss_dicts = []
         total_loss = 0.0
         for i, vw in enumerate(viewpoint_cam):
-            print(f"Length of render_pkg: {len(render_pkg)}, Current index: {i}")
+            # print(f"Length of render_pkg: {len(render_pkg)}, Current index: {i}")
             loss_dict = self.compute_loss(render_pkg[i], vw,
                                       pipe, iteration,
                                       use_reproject, use_matcher,
