@@ -371,7 +371,10 @@ class CFGaussianTrainer(GaussianTrainer):
             self.just_reset = False
             for iteration in range(1, num_iterations):
                 # 你妈的为啥要随机数
-                fidx = randint(0, view_idx_prev)
+                start_points = list(range(0, view_idx_prev[0]+4, 4))
+                start = random.choice(start_points)
+                fidx = list(range(start, start + 4))
+                print("Randomly picked fidx is {}".format(fidx))
                 self.global_iteration += 1
                 self.gs_render.gaussians.update_learning_rate(
                     self.global_iteration)
@@ -413,6 +416,13 @@ class CFGaussianTrainer(GaussianTrainer):
             else:
                 earlier_frames = [f for f in range(1, last_frame+1) if f in available_frames]
                 fidx = random.choice(earlier_frames) if earlier_frames else 1
+            fidx = (fidx // 4) * 4
+
+            if fidx + 3 > max(view_idx):
+                fidx = max(view_idx) - 3
+                fidx = (fidx // 4) * 4
+                
+            fidx = [fidx + i for i in range(4) if fidx + i in available_frames]
 
             self.global_iteration += 1
             if self.gs_render.gaussians.rotate_seq:
