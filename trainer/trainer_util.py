@@ -7,7 +7,7 @@
 # license agreement from NVIDIA CORPORATION is strictly prohibited.
 
 import pdb
-from kornia.geometry.depth import depth_to_3d, depth_to_normals
+from kornia.geometry.depth import depth_to_3d_v2, depth_to_normals
 from pytorch3d.utils import opencv_from_cameras_projection
 from pytorch3d.renderer import PerspectiveCameras
 import pytorch3d
@@ -610,7 +610,7 @@ class GaussianTrainer(object):
 
             intr_mat_tensor = torch.from_numpy(
                 intrinsics).float().to(depth_tensor.device)
-            pts = depth_to_3d(depth_tensor[None, None],
+            pts = depth_to_3d_v2(depth_tensor[None, None],
                             intr_mat_tensor[None],
                             normalize_points=False)
 
