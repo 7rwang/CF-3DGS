@@ -405,49 +405,23 @@ class CFGaussianTrainer(GaussianTrainer):
         progress_bar = tqdm(range(num_iterations), desc="Training progress")
 
         for iteration in range(1, num_iterations+1):
-
-            max_view_idx = max(view_idx)
-            last_frame = max(1, max_view_idx//2)
-            available_frames = set(view_idx)
-            if random.random() < 0.7:
-                later_frames = [f for f in range(last_frame, max_view_idx+1) if f in available_frames]
-                fidx = random.choice(later_frames) if later_frames else last_frame
-            else:
-                earlier_frames = [f for f in range(1, last_frame+1) if f in available_frames]
-                fidx = random.choice(earlier_frames) if earlier_frames else 1
             
-            # 先对齐
-            fidx = (fidx // 4) * 4
-
-            # 再修正 fidx + 3 > max
-            if fidx + 3 > max_view_idx:
-                fidx = max_view_idx - 3
-                fidx = (fidx // 4) * 4
-
-            # 此时检查在 available_frames 中是否有值可用
-            candidate = [fidx + i for i in range(4)]
-            valid = [x for x in candidate if x in available_frames]
-
-            if not valid:
-                # 如果还是为空，就回退到下一个可能的对齐值
-                # 例如，往下再减 4，直到找到能用的或用默认值
-                new_fidx = None
-                step_down = fidx
-                while step_down >= 0:
-                    candidate2 = [step_down + i for i in range(4)]
-                    valid2 = [x for x in candidate2 if x in available_frames]
-                    if valid2:
-                        new_fidx = valid2
-                        break
-                    step_down -= 4
-
-                if not new_fidx:
-                    raise ValueError("No valid fidx found even after step-down.")
-                
-                fidx = new_fidx
+            if view_idx[0] <= 0:
+                fidx = [0,1,2,3]
             else:
-                fidx = valid
-                
+                which_frame =int(view_idx[0] / 4)
+                last_frame = max(1, which_frame//2)
+                if random.random() < 0.7:
+                    idx = randint(last_frame, which_frame)
+                    start_point = idx * 4
+                    fidx = [start_point, start_point+1, start_point+2, start_point+3]
+
+                else:
+                    idx = randint(1, last_frame)
+                    start_point = idx * 4
+                    fidx = [start_point, start_point+1, start_point+2, start_point+3] 
+            
+
             print("fidx is {}".format(fidx))
             self.global_iteration += 1
             if self.gs_render.gaussians.rotate_seq:
