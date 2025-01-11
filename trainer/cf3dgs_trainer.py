@@ -379,8 +379,7 @@ class CFGaussianTrainer(GaussianTrainer):
                 self.gs_render.gaussians.update_learning_rate(
                     self.global_iteration)
                 viewpoint_cam = self.load_viewpoint_cam(fidx,
-                                                        pose=self.gs_render.gaussians.get_RT(
-                                                            fidx).detach().cpu(),
+                                                        pose=None,
                                                         load_depth=True)
                 loss, rend_dict_ref, psnr_train = self.train_step(self.gs_render,
                                                                   viewpoint_cam,
@@ -424,15 +423,14 @@ class CFGaussianTrainer(GaussianTrainer):
                 fidx = (fidx // 4) * 4
 
             fidx = [fidx + i for i in range(4) if fidx + i in available_frames]
-            print("fixd is {}".format(fidx))
+            print("fidx is {}".format(fidx))
             self.global_iteration += 1
             if self.gs_render.gaussians.rotate_seq:
                 self.gs_render.gaussians.set_seq_idx(fidx)
             viewpoint_cam = self.load_viewpoint_cam(fidx,
-                                                    pose=self.gs_render.gaussians.get_RT(
-                                                        fidx).detach().cpu()
-                                                    if not self.gs_render.gaussians.rotate_seq
-                                                    else None,
+                                                    pose=None,
+                                                    # if not self.gs_render.gaussians.rotate_seq
+                                                    # else None,
                                                     load_depth=True)
             # Update learning rate
             self.gs_render.gaussians.update_learning_rate(
