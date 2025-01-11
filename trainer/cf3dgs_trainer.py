@@ -569,8 +569,7 @@ class CFGaussianTrainer(GaussianTrainer):
                     # pcd_new, local_gauss_params = self.add_view(
                     #     None, fidx, fidx-1, pipe, optim_opt, reverse=reverse)
                 try:
-                    # pcd_new, local_gauss_params = self.add_view_v2(
-                    #     fidx, fidx-1)
+                  
                     self.gs_render.gaussians.rotate_seq = False
 
                     # ----------------------------计算psnr_train--------------------------------
@@ -587,15 +586,15 @@ class CFGaussianTrainer(GaussianTrainer):
                     gt_images = torch.stack(gt_images)
                     render_images = torch.stack(render_images)
 
-                    print("gt_images shape is {}".format(gt_images.shape))
-                    print("render_images shape is {}".format(render_images.shape))
+                    # print("gt_images shape is {}".format(gt_images.shape))
+                    # print("render_images shape is {}".format(render_images.shape))
                     psnr_train = psnr(render_images,
                                     gt_images).mean().double()
                     print(
                     'Frames {}/{:03d}, PSNR : {:.03f}'.format(previous_batch_fidx[0], self.seq_len-1, psnr_train))
                     # 这里应该需要保留，起到对高斯进行可视化和保存可视化结果的作用
                     for i in range(4):
-                        self.visualize(render_images[i,...],
+                        self.visualize(render_dict[i],
                                     f"{result_path}/train/{self.global_iteration:06d}_{previous_batch_fidx[0]}_{i}.png",
                                     gt_image=gt_images[i,...], save_ply=False)
                     # ----------------------------计算psnr_train----------------------------------
