@@ -405,7 +405,7 @@ class CFGaussianTrainer(GaussianTrainer):
         for iteration in range(1, num_iterations+1):
 
             max_view_idx = max(view_idx)
-            last_frame = max(1, view_idx//2)
+            last_frame = max(1, max_view_idx//2)
             available_frames = set(view_idx)
             if random.random() < 0.7:
                 later_frames = [f for f in range(last_frame, max_view_idx+1) if f in available_frames]
