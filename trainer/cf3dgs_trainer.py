@@ -592,7 +592,7 @@ class CFGaussianTrainer(GaussianTrainer):
                     psnr_train = psnr(render_images,
                                     gt_images).mean().double()
                     print(
-                    'Frames {}/{:03d}, PSNR : {:.03f}'.format(previous_batch_fidx, self.seq_len-1, psnr_train))
+                    'Frames {}/{:03d}, PSNR : {:.03f}'.format(previous_batch_fidx[0], self.seq_len-1, psnr_train))
                     # 这里应该需要保留，起到对高斯进行可视化和保存可视化结果的作用
                     for i in range(4):
                         self.visualize(render_images[i,...],
