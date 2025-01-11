@@ -564,37 +564,37 @@ class CFGaussianTrainer(GaussianTrainer):
                                                     curr_batch_fidx, pre_batch_fidx)
                 
 # -------------------------------------------four views-------------------------------------------
-                for fidx in previous_batch_fidx:
+                # for fidx in previous_batch_fidx:
                     # fidx : 0,1,2,3....n-2,n-1,n
                     # pcd_new, local_gauss_params = self.add_view(
                     #     None, fidx, fidx-1, pipe, optim_opt, reverse=reverse)
-                    try:
-                        # pcd_new, local_gauss_params = self.add_view_v2(
-                        #     fidx, fidx-1)
-                        self.gs_render.gaussians.rotate_seq = False
+                try:
+                    # pcd_new, local_gauss_params = self.add_view_v2(
+                    #     fidx, fidx-1)
+                    self.gs_render.gaussians.rotate_seq = False
 
-                        # ----------------------------计算psnr_train--------------------------------
-                        viewpoint_cam = self.load_viewpoint_cam(fidx,
-                                                            pose=self.gs_render.gaussians.get_RT(
-                                                                fidx).detach().cpu(),
-                                                            )
-                        render_dict = self.gs_render.render(viewpoint_cam,
-                                                        compute_cov3D_python=pipe.compute_cov3D_python,
-                                                        convert_SHs_python=True)
-                        gt_image = viewpoint_cam.original_image.cuda()
-                        psnr_train = psnr(render_dict["image"],
-                                        gt_image).mean().double()
-                        print(
-                        'Frames {:03d}/{:03d}, PSNR : {:.03f}'.format(fidx, self.seq_len-1, psnr_train))
-                        # 这里应该需要保留，起到对高斯进行可视化和保存可视化结果的作用
-                        self.visualize(render_dict,
-                                    f"{result_path}/train/{self.global_iteration:06d}_{fidx:03d}.png",
-                                    gt_image=gt_image, save_ply=False)
-                        # ----------------------------计算psnr_train----------------------------------
+                    # ----------------------------计算psnr_train--------------------------------
+                    viewpoint_cam = self.load_viewpoint_cam(previous_batch_fidx,
+                                                        pose=None#self.gs_render.gaussians.get_RT(
+                                                            #fidx).detach().cpu(),
+                                                        )
+                    render_dict = self.gs_render.render(viewpoint_cam,
+                                                    compute_cov3D_python=pipe.compute_cov3D_python,
+                                                    convert_SHs_python=True)
+                    gt_image = viewpoint_cam.original_image.cuda()
+                    psnr_train = psnr(render_dict["image"],
+                                    gt_image).mean().double()
+                    print(
+                    'Frames {}/{:03d}, PSNR : {:.03f}'.format(previous_batch_fidx, self.seq_len-1, psnr_train))
+                    # 这里应该需要保留，起到对高斯进行可视化和保存可视化结果的作用
+                    self.visualize(render_dict,
+                                f"{result_path}/train/{self.global_iteration:06d}_{previous_batch_fidx}.png",
+                                gt_image=gt_image, save_ply=False)
+                    # ----------------------------计算psnr_train----------------------------------
 
-                    except Exception as e:
-                        warnings.warn(f"Error processing frame {fidx}: {e}")
-                        continue
+                except Exception as e:
+                    warnings.warn(f"Error processing frame {previous_batch_fidx}: {e}")
+                    continue
 # -------------------------------------------four views-------------------------------------------
 
                 # Updata previous_batch_fidx
