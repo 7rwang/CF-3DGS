@@ -986,7 +986,10 @@ class CF3DGS_Render:
                     current_colors_precomp = colors_precomp[idx]
                 else:
                     current_colors_precomp = colors_precomp
-        
+
+                print("colors_precomp shape:", colors_precomp.shape)
+                print("means3D shape:", means3D.shape)
+                print("means2D shape:", means2D.shape)
                 # 如果其他参数也是按摄像机批处理的，例如 opacities, scales, rotations, cov3D_precomp
                 # 则需要提取对应的部分。例如：
                 # current_opacity = opacity[idx]
