@@ -724,8 +724,8 @@ class GaussianTrainer(object):
             R = torch.tensor(R, dtype=torch.float32)  # [4, 3, 3]
             t = torch.tensor(t, dtype=torch.float32) 
 
-            print("The shape of R is {}\n".format(R.shape))
-            print("The shape of T is {}".format(t.shape))
+            # print("The shape of R is {}\n".format(R.shape))
+            # print("The shape of T is {}".format(t.shape))
             # ------------------------------initialize R and T------------------------------
 
             # ------------------------------focal length------------------------------
@@ -736,8 +736,8 @@ class GaussianTrainer(object):
                 focal_length_y = intrinsics[i, 1, 1]
                 FoVy[i] = focal2fov(focal_length_y, height)
                 FoVx[i] = focal2fov(focal_length_x, width)
-            print("FoVx is {}\n".format(FoVx))
-            print("FoVy is {}".format(FoVy))
+            # print("FoVx is {}\n".format(FoVx))
+            # print("FoVy is {}".format(FoVy))
             # ------------------------------focal length-------------------------------
 
             # ------------------------------load 4 viewpoint camera------------------------------

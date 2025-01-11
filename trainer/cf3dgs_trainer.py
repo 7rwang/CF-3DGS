@@ -587,6 +587,8 @@ class CFGaussianTrainer(GaussianTrainer):
                     gt_images = torch.stack(gt_images)
                     render_images = torch.stack(render_images)
 
+                    print("gt_images shape is {}".format(gt_images.shape))
+                    print("render_images shape is {}".format(render_images.shape))
                     psnr_train = psnr(render_images,
                                     gt_images).mean().double()
                     print(
@@ -601,9 +603,8 @@ class CFGaussianTrainer(GaussianTrainer):
                     warnings.warn(f"Error processing frame {previous_batch_fidx}: {e}")
                     continue
 # -------------------------------------------four views-------------------------------------------
-
-            # Updata previous_batch_fidx
-            previous_batch_fidx = curr_batch_fidx
+                # Updata previous_batch_fidx
+                previous_batch_fidx = curr_batch_fidx
                         
             with torch.no_grad():
                 psnr_test = 0.0
