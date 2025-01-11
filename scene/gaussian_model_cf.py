@@ -906,7 +906,11 @@ class CF3DGS_Render:
         # from SHs in Python, do it. If not, then SH -> RGB conversion will be done by rasterizer.
         shs = None
         colors_precomp = None
-
+        print("Entering color precomputation")
+        print("convert_SHs_python:", convert_SHs_python)
+        print("self.view_dependent:", self.view_dependent)
+        print("colors_precomp is None:", colors_precomp is None)
+        
         if colors_precomp is None:
             if convert_SHs_python:
                 if self.view_dependent:
