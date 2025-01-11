@@ -905,8 +905,8 @@ class CF3DGS_Render:
         # If precomputed colors are provided, use them. Otherwise, if it is desired to precompute colors
         # from SHs in Python, do it. If not, then SH -> RGB conversion will be done by rasterizer.
         shs = None
-
         colors_precomp = None
+
         if colors_precomp is None:
             if convert_SHs_python:
                 if self.view_dependent:
@@ -953,6 +953,7 @@ class CF3DGS_Render:
             else:
                 shs = self.gaussians.get_features
         else:
+            print("colors_precomp is not None!!!!!!!!!!!!!!!!")
             override_color_list = []
             for camera in viewpoint_camera:
                 override_color_list.append(override_color)
@@ -960,9 +961,16 @@ class CF3DGS_Render:
             colors_precomp = torch.stack(override_color_list, dim=0)
 
           
-
+        print("colors_precomp type:", type(colors_precomp))
+        print("colors_precomp shape:", colors_precomp.shape if hasattr(colors_precomp, 'shape') else None)
+        print("rasterizer length:", len(rasterizer))
         # Rasterize visible Gaussians to image, obtain their radii (on screen).
+        print("Is rasterizer empty?", len(rasterizer) == 0)
+        print("rasterizer type:", type(rasterizer))
+        print("Is rasterizer iterable?", hasattr(rasterizer, '__iter__'))
+        
         for idx, current_rasterizer in enumerate(rasterizer):
+            print(f"Processing rasterizer {idx}")
             try:
                 current_colors_precomp = colors_precomp[idx]
         
