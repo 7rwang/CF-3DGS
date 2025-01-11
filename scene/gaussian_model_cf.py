@@ -976,7 +976,10 @@ class CF3DGS_Render:
         for idx, current_rasterizer in enumerate(rasterizer):
             print(f"Processing rasterizer {idx}")
             try:
-                # current_colors_precomp = colors_precomp[idx]
+                if colors_precomp is not None:
+                    current_colors_precomp = colors_precomp[idx]
+                else:
+                    current_colors_precomp = torch.Tensor([])
         
                 # 如果其他参数也是按摄像机批处理的，例如 opacities, scales, rotations, cov3D_precomp
                 # 则需要提取对应的部分。例如：
@@ -989,7 +992,7 @@ class CF3DGS_Render:
                     means3D=means3D,
                     means2D=means2D,
                     shs=shs,
-                    colors_precomp=colors_precomp,
+                    colors_precomp=current_colors_precomp,
                     opacities=opacity,
                     scales=scales,
                     rotations=rotations,
