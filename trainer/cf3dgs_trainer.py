@@ -581,9 +581,14 @@ class CFGaussianTrainer(GaussianTrainer):
                     render_dict = self.gs_render.render(viewpoint_cam,
                                                     compute_cov3D_python=pipe.compute_cov3D_python,
                                                     convert_SHs_python=True)
-                    gt_image = viewpoint_cam.original_image.cuda()
-                    psnr_train = psnr(render_dict["image"],
-                                    gt_image).mean().double()
+                    
+                    gt_images = [vc.original_image.cuda() for vc in viewpoint_cam]
+                    render_images = [rd["image"] for rd in render_dict]
+                    gt_images = torch.stack(gt_images)
+                    render_images = torch.stack(render_images)
+
+                    psnr_train = psnr(render_images,
+                                    gt_images).mean().double()
                     print(
                     'Frames {}/{:03d}, PSNR : {:.03f}'.format(previous_batch_fidx, self.seq_len-1, psnr_train))
                     # 这里应该需要保留，起到对高斯进行可视化和保存可视化结果的作用
@@ -597,8 +602,8 @@ class CFGaussianTrainer(GaussianTrainer):
                     continue
 # -------------------------------------------four views-------------------------------------------
 
-                # Updata previous_batch_fidx
-                previous_batch_fidx = curr_batch_fidx
+            # Updata previous_batch_fidx
+            previous_batch_fidx = curr_batch_fidx
                         
             with torch.no_grad():
                 psnr_test = 0.0
