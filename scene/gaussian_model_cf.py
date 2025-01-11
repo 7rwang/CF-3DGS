@@ -778,7 +778,7 @@ class CF3DGS_Render:
             try:
                 with open('{}'.format(json_file), 'r', encoding='utf-8') as f:
                     data = json.load(f)
-                    print(f'Load json file in{json_file} successfully!')
+                    # print(f'Load json file in{json_file} successfully!')
                     for i, key in enumerate(data):
                         intrinsics[i, ...] = np.asarray(
                                         data[key]['intrinsic'])[:3, :3]
@@ -1016,8 +1016,8 @@ class CF3DGS_Render:
                     raise TypeError(f"Unexpected type of 'out' from Rasterizer {idx}: {type(out)}")
    
                 out_images.append(output_dict)
-                print(f"Rasterizer {idx} successfully")
-                
+                # print(f"Rasterizer {idx} successfully")
+
             except Exception as e:
                 print(f"Rasterizer {idx} wrong:{e}")
 
