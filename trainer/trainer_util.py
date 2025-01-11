@@ -278,6 +278,8 @@ class GaussianTrainer(object):
             #     self.intrinsic = intr_mat
             # else:
             images = sorted(glob.glob(os.path.join(source_path, "images/*.jpg")))
+            print("images is {}".format(images))
+
             if len(images) > max_frames:
                 interval = len(images) // max_frames
                 images = images[::interval]
@@ -310,14 +312,15 @@ class GaussianTrainer(object):
             self.intrinsic = intr_mat
 
 
-            sample_rate = 8
-            ids = np.arange(len(images))
-            self.i_test = ids[int(sample_rate/2)::sample_rate]
-            self.i_train = np.array([i for i in ids if i not in self.i_test])
-            if "eval" in self.model_cfg.mode:
-                self.data = [images[i] for i in self.i_test]
-            else:
-                self.data = [images[i] for i in self.i_train]
+            # sample_rate = 8
+            # ids = np.arange(len(images))
+            # self.i_test = ids[int(sample_rate/2)::sample_rate]
+            # self.i_train = np.array([i for i in ids if i not in self.i_test])
+            # if "eval" in self.model_cfg.mode:
+            #     self.data = [images[i] for i in self.i_test]
+            # else:
+            #     self.data = [images[i] for i in self.i_train]
+            self.data = images
             self.seq_len = len(self.data)
         else:
             source_path = self.model_cfg.source_path

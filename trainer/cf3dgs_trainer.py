@@ -594,9 +594,10 @@ class CFGaussianTrainer(GaussianTrainer):
                     print(
                     'Frames {}/{:03d}, PSNR : {:.03f}'.format(previous_batch_fidx, self.seq_len-1, psnr_train))
                     # 这里应该需要保留，起到对高斯进行可视化和保存可视化结果的作用
-                    self.visualize(render_dict,
-                                f"{result_path}/train/{self.global_iteration:06d}_{previous_batch_fidx}.png",
-                                gt_image=gt_image, save_ply=False)
+                    for i in range(4):
+                        self.visualize(render_images[i,...],
+                                    f"{result_path}/train/{self.global_iteration:06d}_{previous_batch_fidx[0]}_{i}.png",
+                                    gt_image=gt_images[i,...], save_ply=False)
                     # ----------------------------计算psnr_train----------------------------------
 
                 except Exception as e:
