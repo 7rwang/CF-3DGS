@@ -519,7 +519,7 @@ class CFGaussianTrainer(GaussianTrainer):
         batch_size = 4
         reverse = False
         init_idx = [0, 1, 2, 3]
-        start_frame = max(previous_batch_fidx) + 1
+        start_frame = max(init_idx) + 1
         # 主要负责参数初始化、优化配置
         for epoch in range(num_epoch):
             gauss_params = self.init_two_view(
