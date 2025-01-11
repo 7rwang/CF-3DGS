@@ -148,7 +148,13 @@ class CFGaussianModel:
                     Rt = torch.stack([m.float() for m in Rt]).to("cuda")
                 else:
                     Rt = self.P[idx].retr().matrix()
-                    Rt = torch.from_numpy(Rt).float().to("cuda")
+                    # 检查类型并处理
+                    if isinstance(Rt, np.ndarray):  # NumPy 数组
+                        Rt = torch.from_numpy(Rt).float().to("cuda")
+                    elif isinstance(Rt, torch.Tensor):  # 已经是 Tensor
+                        Rt = Rt.float().to("cuda")
+                    else:
+                        raise TypeError(f"Unsupported type for Rt: {type(Rt)}")
 
         # Rt shape: (N, 4, 4)
         return Rt.squeeze()
