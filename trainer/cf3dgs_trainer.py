@@ -562,9 +562,9 @@ class CFGaussianTrainer(GaussianTrainer):
                     print("No previous batch_fidx (this is the first batch)")
                 pcd_new, local_gauss_params = self.add_view_v2(
                                                     curr_batch_fidx, pre_batch_fidx)
-                batch_fidx = list(curr_batch_fidx)
+                
 # -------------------------------------------four views-------------------------------------------
-                for fidx in batch_fidx:
+                for fidx in previous_batch_fidx:
                     # fidx : 0,1,2,3....n-2,n-1,n
                     # pcd_new, local_gauss_params = self.add_view(
                     #     None, fidx, fidx-1, pipe, optim_opt, reverse=reverse)
