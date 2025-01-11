@@ -392,20 +392,27 @@ class CFGaussianTrainer(GaussianTrainer):
 
         # ---------------------------------------------------------------------------------------
         num_iterations = self.single_step
-        if max(view_idx, view_idx_prev) > min(int(self.seq_len * 0.8), self.seq_len-5):
+        max_curr_prev = max(max(view_idx), max(view_idx_prev))
+        min_curr_prev = min(min(view_idx), min(view_idx_prev))
+
+        if max_curr_prev > min(int(self.seq_len * 0.8), self.seq_len-5):
             num_iterations = 1000
-        elif min(view_idx, view_idx_prev) < int(self.single_step // 100):
+        elif min_curr_prev < int(self.single_step // 100):
             num_iterations = 100
 
         progress_bar = tqdm(range(num_iterations), desc="Training progress")
 
         for iteration in range(1, num_iterations+1):
 
+            max_view_idx = max(view_idx)
             last_frame = max(1, view_idx//2)
+            available_frames = set(view_idx)
             if random.random() < 0.7:
-                fidx = randint(last_frame, view_idx)
+                later_frames = [f for f in range(last_frame, max_view_idx+1) if f in available_frames]
+                fidx = random.choice(later_frames) if later_frames else last_frame
             else:
-                fidx = randint(1, last_frame)
+                earlier_frames = [f for f in range(1, last_frame+1) if f in available_frames]
+                fidx = random.choice(earlier_frames) if earlier_frames else 1
 
             self.global_iteration += 1
             if self.gs_render.gaussians.rotate_seq:
