@@ -536,7 +536,7 @@ class CFGaussianTrainer(GaussianTrainer):
             # 这个for循环应该是需要修改的，这里应该就是在读取图像
             previous_batch_fidx = init_idx
             for i in range(start_frame, end_frame, batch_size):
-                curr_batch_fidx = range(i, min(i + batch_size, end_frame))
+                curr_batch_fidx = list(range(i, min(i + batch_size, end_frame)))
                 print(f"Current batch_fidx: {curr_batch_fidx}")
 
                 if previous_batch_fidx is not None:

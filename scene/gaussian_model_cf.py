@@ -961,14 +961,14 @@ class CF3DGS_Render:
             colors_precomp = torch.stack(override_color_list, dim=0)
 
           
-        print("colors_precomp type:", type(colors_precomp))
+        print("colors_precomp type:", type(colors_precomp)) 
         print("colors_precomp shape:", colors_precomp.shape if hasattr(colors_precomp, 'shape') else None)
         print("rasterizer length:", len(rasterizer))
         # Rasterize visible Gaussians to image, obtain their radii (on screen).
         print("Is rasterizer empty?", len(rasterizer) == 0)
         print("rasterizer type:", type(rasterizer))
         print("Is rasterizer iterable?", hasattr(rasterizer, '__iter__'))
-        
+
         for idx, current_rasterizer in enumerate(rasterizer):
             print(f"Processing rasterizer {idx}")
             try:
