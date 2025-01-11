@@ -516,12 +516,12 @@ class CFGaussianTrainer(GaussianTrainer):
         os.makedirs(f"{result_path}/pose", exist_ok=True)
         os.makedirs(f"{result_path}/mesh", exist_ok=True)
 
-        num_eppch = 1
+        num_epoch = 1
         batch_size = 4
         reverse = False
         init_idx = [0, 1, 2, 3]
         # 主要负责参数初始化、优化配置
-        for epoch in range(num_eppch):
+        for epoch in range(num_epoch):
             gauss_params = self.init_two_view(
                 init_idx, end_frame, pipe, copy(self.optim_cfg))
             
@@ -565,7 +565,7 @@ class CFGaussianTrainer(GaussianTrainer):
                                                             )
                         render_dict = self.gs_render.render(viewpoint_cam,
                                                         compute_cov3D_python=pipe.compute_cov3D_python,
-                                                        convert_SHs_python=pipe.convert_SHs_python)
+                                                        convert_SHs_python=True)
                         gt_image = viewpoint_cam.original_image.cuda()
                         psnr_train = psnr(render_dict["image"],
                                         gt_image).mean().double()
