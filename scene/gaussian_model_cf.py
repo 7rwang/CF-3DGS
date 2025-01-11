@@ -978,7 +978,8 @@ class CF3DGS_Render:
             try:
                 if colors_precomp is not None:
                     current_colors_precomp = colors_precomp[idx]
-        
+                else:
+                    current_colors_precomp = colors_precomp
         
                 # 如果其他参数也是按摄像机批处理的，例如 opacities, scales, rotations, cov3D_precomp
                 # 则需要提取对应的部分。例如：
