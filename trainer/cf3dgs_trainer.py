@@ -358,10 +358,12 @@ class CFGaussianTrainer(GaussianTrainer):
         # Ultimate Rt's shape should be (4, 4)
 
         rel_pose = self.gs_render_local.gaussians.get_RT().detach() # N,4,4
-        pose = rel_pose @ self.gs_render.gaussians.get_RT(view_idx_prev).detach() # N,4,4
-        
-        self.gs_render.gaussians.update_RT_seq(pose, view_idx)
+        print("rel_pose shape is {}".format(rel_pose.shape))
+        pose = rel_pose @ self.gs_render.gaussians.get_RT(self.gs_render_local.gaussians.seq_idx).detach() # N,4,4
+        print("pose shape is {}".format(pose.shape))
 
+        self.gs_render.gaussians.update_RT_seq(pose, view_idx)
+        import pad; pdb.set_trace()
         self.gs_render.gaussians.rotate_seq = False
         pipe.convert_SHs_python = self.gs_render.gaussians.rotate_seq
         # -------------------------------optimize R&T--------------------------------------------
@@ -459,6 +461,7 @@ class CFGaussianTrainer(GaussianTrainer):
             if iteration == num_iterations:
                 progress_bar.close()
         # ---------------------------------------------------------------------------------------
+        self.gs_render_local.gaussians.seq_idx += 1
         print("这 里 也 也 也 也 也 也 运 行 过 了 操 你 妈 的\n!!!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!")
 
         return pcd, local_model_params
