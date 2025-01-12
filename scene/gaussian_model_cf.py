@@ -1023,6 +1023,12 @@ class CF3DGS_Render:
                         print("\033[32m[INFO]11111111111111111\033[0m")
                         rendered_image, radii, rendered_depth, rendered_alpha = out
                         print("\033[32m[INFO]22222222222222222\033[0m")
+                        
+                        print("out is {}".format(out))
+                        print(f"rendered_image is None: {rendered_image is None}")
+                        print(f"radii is None: {radii is None}")
+                        print(f"rendered_depth is None: {rendered_depth is None}")
+                        print(f"rendered_alpha is None: {rendered_alpha is None}")
 
                         torch.cuda.synchronize()
                         print("\033[34m[DEBUG] rendered_image device: {}, dtype: {}, shape: {}\033[0m".format(
