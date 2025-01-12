@@ -108,7 +108,7 @@ class CFGaussianTrainer(GaussianTrainer):
             convert_SHs_python=pipe.convert_SHs_python,
             override_color=colors_precomp)
         # render_pkg is a list contains 4 render_pkgs
-        print("\033[32m[INFO] render_pkg in func train_step is {}\033[0m".format(render_pkg))
+        # print("\033[32m[INFO] render_pkg in func train_step is {}\033[0m".format(render_pkg))
         if prev_gaussians is not None:
             with torch.no_grad():
                 # Render
@@ -270,7 +270,7 @@ class CFGaussianTrainer(GaussianTrainer):
         self.loss_func.depth_loss_type = "invariant"
         # Set seq_idx manually
         self.gs_render_local.gaussians.seq_idx = 1
-        print("Current seq_idx is{}".format(self.gs_render_local.gaussians.seq_idx))
+        print("Current seq_idx is {}".format(self.gs_render_local.gaussians.seq_idx))
 
         pipe = copy(self.pipe_cfg)
         optim_opt = copy(self.optim_cfg)
