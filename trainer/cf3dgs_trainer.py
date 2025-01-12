@@ -365,8 +365,8 @@ class CFGaussianTrainer(GaussianTrainer):
         pose = rel_pose @ self.gs_render.gaussians.get_RT(self.gs_render_local.gaussians.seq_idx).detach() # N,4,4
         print("pose shape is {}".format(pose.shape))
 
-        self.gs_render.gaussians.update_RT_seq(pose, view_idx)
-        import pad; pdb.set_trace()
+        self.gs_render.gaussians.update_RT_seq(pose, self.gs_render_local.gaussians.seq_idx)
+        # import pad; pdb.set_trace()
         self.gs_render.gaussians.rotate_seq = False
         pipe.convert_SHs_python = self.gs_render.gaussians.rotate_seq
         # -------------------------------optimize R&T--------------------------------------------
