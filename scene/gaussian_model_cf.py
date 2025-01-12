@@ -924,6 +924,7 @@ class CF3DGS_Render:
                     shs_view = self.gaussians.get_features.transpose(1, 2).view(
                         -1, 3, (self.gaussians.max_sh_degree + 1) ** 2
                     )
+                    print("shs_view is {}".format(shs_view))
                     # colors_precomp_list = []
                     # for camera in viewpoint_camera:
                     # fidx = camera.uid
@@ -968,6 +969,7 @@ class CF3DGS_Render:
                     # print("2_colors_precomp shape is {}".format(colors_precomp.shape))
             else:
                 shs = self.gaussians.get_features
+                print("shs is {}".format(shs))
         else:
             print("colors_precomp is not None!!!!!!!!!!!!!!!!")
             override_color_list = []
