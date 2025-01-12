@@ -1027,17 +1027,28 @@ class CF3DGS_Render:
                         print(f"Type of out[1]: {type(out[1])}")
                         print(f"Type of out[2]: {type(out[2])}")
                         print(f"Type of out[3]: {type(out[3])}")
+
+                        print(f"rendered_image shape: {rendered_image.shape}")
+                        print(f"radii shape: {radii.shape}")
+                        print(f"rendered_depth shape: {rendered_depth.shape}")
+                        print(f"rendered_alpha shape: {rendered_alpha.shape}")
         
-                        # 如果是tensor，只打印基本信息
-                        for i, item in enumerate(out):
-                            if isinstance(item, torch.Tensor):
-                                print(f"Item {i} is tensor on device: {item.device}")
+                        # # 如果是tensor，只打印基本信息
+                        # for i, item in enumerate(out):
+                        #     if isinstance(item, torch.Tensor):
+                        #         print(f"Item {i} is tensor on device: {item.device}")
 
                         
-                        print(f"rendered_image is None: {rendered_image is None}")
-                        print(f"radii is None: {radii is None}")
-                        print(f"rendered_depth is None: {rendered_depth is None}")
-                        print(f"rendered_alpha is None: {rendered_alpha is None}")
+                        # print(f"rendered_image is None: {rendered_image is None}")
+                        # print(f"radii is None: {radii is None}")
+                        # print(f"rendered_depth is None: {rendered_depth is None}")
+                        # print(f"rendered_alpha is None: {rendered_alpha is None}")
+
+                        try:
+                            print(f"rendered_image has nan: {torch.isnan(rendered_image).any().item()}")
+                            print(f"rendered_image has inf: {torch.isinf(rendered_image).any().item()}")
+                        except:
+                            print("Error checking rendered_image values")
 
                         torch.cuda.synchronize()
                         print("\033[34m[DEBUG] rendered_image device: {}, dtype: {}, shape: {}\033[0m".format(
