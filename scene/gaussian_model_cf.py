@@ -975,7 +975,7 @@ class CF3DGS_Render:
                 
             colors_precomp = torch.stack(override_color_list, dim=0)
 
-        print("\033[32m[INFO] colors_precomp is None?{}".format(colors_precomp == None))
+        print("\033[32m[INFO] colors_precomp is None?{}\033[0m".format(colors_precomp is None))
         # print("colors_precomp type:", type(colors_precomp)) 
         # print("colors_precomp shape:", colors_precomp.shape if hasattr(colors_precomp, 'shape') else None)
         # print("rasterizer length:", len(rasterizer))
