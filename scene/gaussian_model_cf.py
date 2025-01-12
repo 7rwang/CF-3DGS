@@ -23,6 +23,7 @@ from utils.general_utils import strip_symmetric, build_scaling_rotation
 from utils.sh_utils import eval_sh
 from scipy.spatial.transform import Rotation as R
 import math
+import pdb
 import json
 
 from diff_gaussian_rasterization import (
@@ -975,7 +976,7 @@ class CF3DGS_Render:
                 
             colors_precomp = torch.stack(override_color_list, dim=0)
 
-        print("\033[32m[INFO] colors_precomp is None?{}\033[0m".format(colors_precomp is None))
+        # print("\033[32m[INFO] colors_precomp is None?{}\033[0m".format(colors_precomp is None))
         # print("colors_precomp type:", type(colors_precomp)) 
         # print("colors_precomp shape:", colors_precomp.shape if hasattr(colors_precomp, 'shape') else None)
         # print("rasterizer length:", len(rasterizer))
@@ -988,15 +989,17 @@ class CF3DGS_Render:
             # print(f"Processing rasterizer {idx}")
             try:
                 if colors_precomp is not None:
+                    pdb.set_trace()
                     current_colors_precomp = colors_precomp[idx]
                 else:
                     current_colors_precomp = colors_precomp
 
-                print("\033[31m[INFO] current_colors_precomp is None?{}\033[0m".format(current_colors_precomp is None))
-                print("\033[31m colors_precomp is : {}\033[0m".format(colors_precomp))
+                # print("\033[31m[INFO] current_colors_precomp is None?{}\033[0m".format(current_colors_precomp is None))
+                # print("\033[31m colors_precomp is : {}\033[0m".format(colors_precomp))
                 # print("means3D shape:", means3D.shape)
                 # print("means2D shape:", means2D.shape)
-        
+
+                pdb.set_trace()
                 out = current_rasterizer(
                     means3D=means3D,
                     means2D=means2D,
@@ -1007,9 +1010,10 @@ class CF3DGS_Render:
                     rotations=rotations,
                     cov3D_precomp=cov3D_precomp,
                 )
-                print(f"\033[31m Rasterizer {idx} output type: {type(out)}, length: {len(out)}\033[0m")
+                # print(f"\033[31m Rasterizer {idx} output type: {type(out)}, length: {len(out)}\033[0m")
                 
                 if isinstance(out, (list, tuple)):
+                    pdb.set_trace()
                     if len(out) == 4:
                         rendered_image, radii, rendered_depth, rendered_alpha = out
                         rendered_image = rendered_image.clamp(0, 1)
