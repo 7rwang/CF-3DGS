@@ -872,7 +872,7 @@ class CF3DGS_Render:
         for vw_camera in viewpoint_camera:
             tanfovx = math.tan(vw_camera.FoVx * 0.5)
             tanfovy = math.tan(vw_camera.FoVy * 0.5)
-            print("\033[32m fovx from vw_camera in func render is {}\033[0m".format(vw_camera.FoVx))
+            # print("\033[32m fovx from vw_camera in func render is {}\033[0m".format(vw_camera.FoVx))
             raster_settings = GaussianRasterizationSettings(
                 image_height=int(vw_camera.image_height),
                 image_width=int(vw_camera.image_width),

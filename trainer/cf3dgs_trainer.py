@@ -108,7 +108,7 @@ class CFGaussianTrainer(GaussianTrainer):
             convert_SHs_python=pipe.convert_SHs_python,
             override_color=colors_precomp)
         # render_pkg is a list contains 4 render_pkgs
-
+        print("\033[32m[INFO] render_pkg in func train_step is {}\033[32m".format(render_pkg))
         if prev_gaussians is not None:
             with torch.no_grad():
                 # Render
@@ -122,7 +122,8 @@ class CFGaussianTrainer(GaussianTrainer):
                 mask + render_pkg_prev["image"] * (1 - mask)
             render_pkg["depth"] = render_pkg["depth"] * \
                 mask + render_pkg_prev["depth"] * (1 - mask)
-
+        
+        print("\033[32m[INFO] render_pkg right now is {}\033[32m".format(render_pkg))
         # images, viewspace_point_tensor, visibility_filter, radii = (render_pkg["image"],
         #                                                            render_pkg["viewspace_points"],
         #                                                            render_pkg["visibility_filter"],
@@ -133,14 +134,14 @@ class CFGaussianTrainer(GaussianTrainer):
         radii = [render["radii"] for render in render_pkg]
 
         # -------------------------------- check data.attribute --------------------------------
-        # for idx, img in enumerate(images):
-        #     print(f"Image {idx}: Type={type(img)}, Shape={img.shape}")
-        # for idx, pts in enumerate(viewspace_point_tensor):
-        #     print(f"Viewspace Points {idx}: Type={type(pts)}, Shape={pts.shape}")
-        # for idx, vf in enumerate(visibility_filter):
-        #     print(f"Visibility Filter {idx}: Type={type(vf)}, Shape={vf.shape}")
-        # for idx, r in enumerate(radii):
-        #     print(f"Radii {idx}: Type={type(r)}, Shape={r.shape}")
+        for idx, img in enumerate(images):
+            print(f"Image {idx}: Type={type(img)}, Shape={img.shape}")
+        for idx, pts in enumerate(viewspace_point_tensor):
+            print(f"Viewspace Points {idx}: Type={type(pts)}, Shape={pts.shape}")
+        for idx, vf in enumerate(visibility_filter):
+            print(f"Visibility Filter {idx}: Type={type(vf)}, Shape={vf.shape}")
+        for idx, r in enumerate(radii):
+            print(f"Radii {idx}: Type={type(r)}, Shape={r.shape}")
 
         # -------------------------------- check data.attribute --------------------------------
 
