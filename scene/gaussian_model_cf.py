@@ -1023,15 +1023,42 @@ class CF3DGS_Render:
                         print("\033[32m[INFO]11111111111111111\033[0m")
                         rendered_image, radii, rendered_depth, rendered_alpha = out
                         print("\033[32m[INFO]22222222222222222\033[0m")
-                        print(f"Type of out[0]: {type(out[0])}")
-                        print(f"Type of out[1]: {type(out[1])}")
-                        print(f"Type of out[2]: {type(out[2])}")
-                        print(f"Type of out[3]: {type(out[3])}")
+                        try:
+                            print(f"rendered_image shape: {rendered_image.shape}")
+                        except:
+                            print("Error accessing rendered_image shape")
+                            
+                        try:
+                            print(f"radii shape: {radii.shape}")
+                        except:
+                            print("Error accessing radii shape")
+                            
+                        try:
+                            print(f"rendered_depth shape: {rendered_depth.shape}")
+                        except:
+                            print("Error accessing rendered_depth shape")
+                            
+                        try:
+                            print(f"rendered_alpha shape: {rendered_alpha.shape}")
+                        except:
+                            print("Error accessing rendered_alpha shape")
 
-                        print(f"rendered_image shape: {rendered_image.shape}")
-                        print(f"radii shape: {radii.shape}")
-                        print(f"rendered_depth shape: {rendered_depth.shape}")
-                        print(f"rendered_alpha shape: {rendered_alpha.shape}")
+                        # 尝试移动到CPU看是否可以访问
+                        try:
+                            rendered_image_cpu = rendered_image.cpu()
+                            print("Successfully moved rendered_image to CPU")
+                        except:
+                            print("Error moving rendered_image to CPU")
+                            
+                        # print(f"Type of out[0]: {type(out[0])}")
+                        # print(f"Type of out[1]: {type(out[1])}")
+                        # print(f"Type of out[2]: {type(out[2])}")
+                        # print(f"Type of out[3]: {type(out[3])}")
+
+                        # print(f"rendered_image shape: {rendered_image.shape}")
+                        # print(f"radii shape: {radii.shape}")
+                        # print(f"rendered_depth shape: {rendered_depth.shape}")
+                        # print(f"rendered_alpha shape: {rendered_alpha.shape}")
         
                         # # 如果是tensor，只打印基本信息
                         # for i, item in enumerate(out):
