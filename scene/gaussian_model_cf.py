@@ -1004,7 +1004,7 @@ class CF3DGS_Render:
                 print(f"opacities device: {opacity.device}, shape: {opacity.shape}")
                 print(f"scales device: {scales.device}, shape: {scales.shape}")
                 print(f"rotations device: {rotations.device}, shape: {rotations.shape}")
-                print(f"cov3D_precomp device: {cov3D_precomp.device}, shape: {cov3D_precomp.shape}")
+                # print(f"cov3D_precomp device: {cov3D_precomp.device}, shape: {cov3D_precomp.shape}")
 
                 out = current_rasterizer(
                     means3D=means3D,
