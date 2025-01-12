@@ -149,7 +149,7 @@ class CFGaussianTrainer(GaussianTrainer):
         loss_dicts = []
         total_loss = 0.0
         for i, vw in enumerate(viewpoint_cam):
-            # print(f"Length of render_pkg: {len(render_pkg)}, Current index: {i}")
+            print(f"Length of render_pkg: {len(render_pkg)}, Current index: {i}")
             loss_dict = self.compute_loss(render_pkg[i], vw,
                                       pipe, iteration,
                                       use_reproject, use_matcher,
@@ -287,7 +287,7 @@ class CFGaussianTrainer(GaussianTrainer):
                             desc="Training progress")
         self.gs_render_local.gaussians.training_setup(
             optim_opt, fix_pos=True,)
-        
+        print("viewpoint_cam is: {}".format(viewpoint_cam))
         # -------------------------------optimize Gaussian-------------------------------
         for iteration in range(1, optim_opt.iterations+1):
             # Update learning rate
