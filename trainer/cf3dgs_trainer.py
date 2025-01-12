@@ -218,7 +218,7 @@ class CFGaussianTrainer(GaussianTrainer):
         # print("\033[32m[INFO]viewpoint_camera from func init_two_view is {}\033[0m".format(viewpoint_cam))
         # Initialize gaussians
         self.gs_render.reset_model()
-        self.gs_render.init_model(pcd,)
+        self.gs_render.init_model(pcd)
         # self.gs_render.init_model(num_pts=300_000,)
         self.gs_render.gaussians.init_RT_seq(self.seq_len)
         # self.gs_render.gaussians.set_seq_idx(view_idx_1)

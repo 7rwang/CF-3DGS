@@ -1023,8 +1023,17 @@ class CF3DGS_Render:
                         print("\033[32m[INFO]11111111111111111\033[0m")
                         rendered_image, radii, rendered_depth, rendered_alpha = out
                         print("\033[32m[INFO]22222222222222222\033[0m")
+                        print(f"Type of out[0]: {type(out[0])}")
+                        print(f"Type of out[1]: {type(out[1])}")
+                        print(f"Type of out[2]: {type(out[2])}")
+                        print(f"Type of out[3]: {type(out[3])}")
+        
+                        # 如果是tensor，只打印基本信息
+                        for i, item in enumerate(out):
+                            if isinstance(item, torch.Tensor):
+                                print(f"Item {i} is tensor on device: {item.device}")
+
                         
-                        print("out is {}".format(out))
                         print(f"rendered_image is None: {rendered_image is None}")
                         print(f"radii is None: {radii is None}")
                         print(f"rendered_depth is None: {rendered_depth is None}")
