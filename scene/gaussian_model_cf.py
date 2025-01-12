@@ -382,31 +382,30 @@ class CFGaussianModel:
 
     
     def update_RT_seq(self, poses, idx):
-        quats = matrix_to_quaternion(poses[:, :3, :3])
-        quats = quats[:, [1, 2, 3, 0]]
-        translations = poses[:, :3, 3]
-        pose_cat = torch.cat((translations, quats.float()), dim=-1).cuda().requires_grad_(True)
-        
-        se3 = SE3(pose_cat)  # 假设 SE3 能处理 (N, 7)
-        lie_group_param = LieGroupParameter(se3)
+        quat = matrix_to_quaternion(pose[:3, :3])
+        quat = quat[..., [1, 2, 3, 0]]
+        pose = torch.cat((pose[:3, 3], quat.float()), -
+                         1).cuda().requires_grad_(True)
+        self.P[idx] = LieGroupParameter(SE3(pose[None]))
+        self.P[idx].group = SE3(pose[None])
 
-    # 处理 idx 为列表或张量的情况
-        if isinstance(idx, (list, torch.Tensor)):
-            idx = idx.tolist() if isinstance(idx, torch.Tensor) else idx
-            if len(idx) != poses.size(0):
-                raise ValueError(f"索引数量 {len(idx)} 与姿态数量 {poses.size(0)} 不匹配。")
-            for i, index in enumerate(idx):
-                self.P[index] = lie_group_param[i]
-                self.P[index].group = se3[i]
-        elif isinstance(idx, int):
-            if poses.size(0) != 1:
-                raise ValueError(f"当 idx 为单个整数时，poses 应该只有一个姿态，但得到 {poses.size(0)} 个。")
-            self.P[idx] = lie_group_param[0]
-            self.P[idx].group = se3[0]
-        else:
-            raise TypeError("idx 必须是整数、列表或张量。")
-        # self.P[idx] = LieGroupParameter(SE3(pose[None]))
-        # self.P[idx].group = SE3(pose[None])
+    # # 处理 idx 为列表或张量的情况
+    #     if isinstance(idx, (list, torch.Tensor)):
+    #         idx = idx.tolist() if isinstance(idx, torch.Tensor) else idx
+    #         if len(idx) != poses.size(0):
+    #             raise ValueError(f"索引数量 {len(idx)} 与姿态数量 {poses.size(0)} 不匹配。")
+    #         for i, index in enumerate(idx):
+    #             self.P[index] = lie_group_param[i]
+    #             self.P[index].group = se3[i]
+    #     elif isinstance(idx, int):
+    #         if poses.size(0) != 1:
+    #             raise ValueError(f"当 idx 为单个整数时，poses 应该只有一个姿态，但得到 {poses.size(0)} 个。")
+    #         self.P[idx] = lie_group_param[0]
+    #         self.P[idx].group = se3[0]
+    #     else:
+    #         raise TypeError("idx 必须是整数、列表或张量。")
+    #     # self.P[idx] = LieGroupParameter(SE3(pose[None]))
+    #     # self.P[idx].group = SE3(pose[None])
 
     def update_learning_rate(self, iteration):
         ''' Learning rate scheduling per step '''
@@ -1001,8 +1000,8 @@ class CF3DGS_Render:
                 # print("means2D shape:", means2D.shape)
                 # print(f"means3D device: {means3D.device}, shape: {means3D.shape}")
                 # print(f"means2D device: {means2D.device}, shape: {means2D.shape}")
-                print(f"shs: {shs}")
-                print("shs type is {}".format(shs))
+                # print(f"shs: {shs}")
+                # print("shs type is {}".format(shs))
                 # print(f"current_colors_precomp device: {current_colors_precomp.device}, shape: {current_colors_precomp.shape}")
                 # print(f"opacities device: {opacity.device}, shape: {opacity.shape}")
                 # print(f"scales device: {scales.device}, shape: {scales.shape}")
@@ -1021,17 +1020,7 @@ class CF3DGS_Render:
                 )
                 print("Rasterizer output received")
 
-                try:
-                    # 先检查第一个元素
-                    first_tensor = out[0]
-                    print(f"First tensor shape: {first_tensor.shape}")
-                    # 尝试一个简单的操作
-                    _ = first_tensor.sum()
-                    print("First tensor is accessible")
-                except Exception as e:
-                    print(f"Error with first tensor: {e}")
-                # print(f"\033[31m Rasterizer {idx} output type: {type(out)}, length: {len(out)}\033[0m")
-                
+            
                 if isinstance(out, (list, tuple)):
                     if len(out) == 4:
                         # print("\033[32m[INFO]11111111111111111\033[0m")
@@ -1090,21 +1079,9 @@ class CF3DGS_Render:
                         #     print(f"rendered_image has inf: {torch.isinf(rendered_image).any().item()}")
                         # except:
                         #     print("Error checking rendered_image values")
-
-                        torch.cuda.synchronize()
-                        print("\033[34m[DEBUG] rendered_image device: {}, dtype: {}, shape: {}\033[0m".format(
-                rendered_image.device, rendered_image.dtype, rendered_image.shape))
-                        print("\033[34m[DEBUG] rendered_image max: {}, min: {}\033[0m".format(
-                rendered_image.max(), rendered_image.min()))
-                        
-                        if torch.isnan(rendered_image).any():
-                            print("\033[31m[ERROR] rendered_image contains NaNs\033[0m")
-                        if torch.isinf(rendered_image).any():
-                            print("\033[31m[ERROR] rendered_image contains Infs\033[0m")
-
-                        print("\033[32m[INFO]333333333333333333\033[0m")
+                   
                         rendered_image = rendered_image.clamp(0, 1)
-                        print("\033[32m[INFO]Clamp operation completed\033[0m")
+                     
                         
                         # Those Gaussians that were frustum culled or had a radius of 0 were not visible.
                         # They will be excluded from value updates used in the splitting criteria.
@@ -1116,13 +1093,9 @@ class CF3DGS_Render:
                             "visibility_filter": radii > 0,
                             "radii": radii,
                         }
-                        print("\033[32m[INFO]4444444444444444444\033[0m")
                     elif len(out) == 3:
-                        print("\033[32m[INFO]55555555555555555555\033[0m")
                         rendered_image, radii, rendered_depth = out
-                        print("\033[32m[INFO]66666666666666666666\033[0m")
                         rendered_image = rendered_image.clamp(0, 1)
-                        print("\033[32m[INFO]7777777777777777777777\033[0m")
                         output_dict = {
                             "image": rendered_image,
                             "depth": rendered_depth,
