@@ -321,7 +321,7 @@ class CFGaussianTrainer(GaussianTrainer):
         # -------------------------------optimize R&T----------------------------------------
         viewpoint_cam_ref = self.load_viewpoint_cam(view_idx,
                                                     load_depth=True)
-        print("viewpoint_cam_ref is {}".format(viewpoint_cam_ref))
+        print("\033[32m[INFO]:viewpoint_cam_ref is {}\033[0m".format(viewpoint_cam_ref))
         optim_opt.iterations = 300
         optim_opt.densify_from_iter = optim_opt.iterations + 1
         self.gs_render_local.gaussians.init_RT(None)

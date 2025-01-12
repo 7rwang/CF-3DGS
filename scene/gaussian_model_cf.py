@@ -939,8 +939,8 @@ class CF3DGS_Render:
                     camera_centers = torch.from_numpy(camera_centers).float().to(device)
                     camera_centers = camera_centers.unsqueeze(0).expand(self.gaussians._xyz.shape[0], -1, -1)
 
-                    print("camera_centers shape is {}".format(camera_centers.shape))
-                    print("xyz_expanded shape is {}".format(xyz_expanded.shape))
+                    # print("camera_centers shape is {}".format(camera_centers.shape))
+                    # print("xyz_expanded shape is {}".format(xyz_expanded.shape))
                     # print("camera_center[None] shape is {}".format(camera_centers[None].shape))
                     # print("self.gaussians.get_features.shape[0] is {}".format(self.gaussians.get_features.shape[0]))
                     # camera_center = camera_center[None].repeat(
@@ -961,10 +961,10 @@ class CF3DGS_Render:
             
                     # 堆叠所有相机的结果 (4, N, 3)
                     colors_precomp = torch.stack(colors_precomp_list, dim=0)
-                    print("1_colors_precomp shape is {}".format(colors_precomp.shape))
+                    # print("1_colors_precomp shape is {}".format(colors_precomp.shape))
                 else:
                     colors_precomp = self.gaussians.get_features_noview
-                    print("2_colors_precomp shape is {}".format(colors_precomp.shape))
+                    # print("2_colors_precomp shape is {}".format(colors_precomp.shape))
             else:
                 shs = self.gaussians.get_features
         else:
