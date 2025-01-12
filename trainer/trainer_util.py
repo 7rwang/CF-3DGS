@@ -555,7 +555,7 @@ class GaussianTrainer(object):
         depth_tensors = []
         pcd_data_list = []
         cam_info_list = []
-        viewpoint_camera_list = []
+        
 
         intrinsics = self.intrinsic
         uid = idx
@@ -624,7 +624,7 @@ class GaussianTrainer(object):
                                 gt_alpha_mask=None, image_name=image_name,
                                 intrinsics=self.intrinsic,
                                 uid=idx, is_co3d=True)
-            viewpoint_camera_list.append(viewpoint_camera)
+            
 
             pcd_data = o3d.geometry.PointCloud()
             pcd_data.points = o3d.utility.Vector3dVector(points)
@@ -641,6 +641,7 @@ class GaussianTrainer(object):
             points = np.asarray(pcd_data.points, dtype=np.float32)
             normals = np.asarray(pcd_data.normals, dtype=np.float32)
             pcd = BasicPointCloud(points, colors, normals)
+            viewpoint_camera_list = self.load_viewpoint_cam(idx)
 
         return images, cam_info, pcd, viewpoint_camera_list
 
