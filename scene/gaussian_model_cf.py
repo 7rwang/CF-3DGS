@@ -999,7 +999,8 @@ class CF3DGS_Render:
                 # print("means2D shape:", means2D.shape)
                 # print(f"means3D device: {means3D.device}, shape: {means3D.shape}")
                 # print(f"means2D device: {means2D.device}, shape: {means2D.shape}")
-                # print(f"shs device: {shs.device}, shape: {shs.shape}")
+                print(f"shs: {shs}")
+                print("shs type is {}".format(shs))
                 # print(f"current_colors_precomp device: {current_colors_precomp.device}, shape: {current_colors_precomp.shape}")
                 # print(f"opacities device: {opacity.device}, shape: {opacity.shape}")
                 # print(f"scales device: {scales.device}, shape: {scales.shape}")
@@ -1017,7 +1018,7 @@ class CF3DGS_Render:
                     cov3D_precomp=cov3D_precomp,
                 )
                 print("Rasterizer output received")
-                
+
                 try:
                     # 先检查第一个元素
                     first_tensor = out[0]
