@@ -408,7 +408,7 @@ class CFGaussianTrainer(GaussianTrainer):
         progress_bar = tqdm(range(num_iterations), desc="Training progress")
 
         for iteration in range(1, num_iterations+1):
-            
+            print("这 里 运 行 过 了 操 你 妈 的\n!!!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!")
             if view_idx[0] <= 0:
                 fidx = [0,1,2,3]
             else:
@@ -459,6 +459,8 @@ class CFGaussianTrainer(GaussianTrainer):
             if iteration == num_iterations:
                 progress_bar.close()
         # ---------------------------------------------------------------------------------------
+        print("这 里 也 也 也 也 也 也 运 行 过 了 操 你 妈 的\n!!!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!")
+
         return pcd, local_model_params
 
     def create_pcd_from_render(self, render_dict, viewpoint_cam):
