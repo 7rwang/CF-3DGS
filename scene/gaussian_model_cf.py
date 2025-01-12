@@ -1016,6 +1016,17 @@ class CF3DGS_Render:
                     rotations=rotations,
                     cov3D_precomp=cov3D_precomp,
                 )
+                print("Rasterizer output received")
+                
+                try:
+                    # 先检查第一个元素
+                    first_tensor = out[0]
+                    print(f"First tensor shape: {first_tensor.shape}")
+                    # 尝试一个简单的操作
+                    _ = first_tensor.sum()
+                    print("First tensor is accessible")
+                except Exception as e:
+                    print(f"Error with first tensor: {e}")
                 # print(f"\033[31m Rasterizer {idx} output type: {type(out)}, length: {len(out)}\033[0m")
                 
                 if isinstance(out, (list, tuple)):
@@ -1049,7 +1060,7 @@ class CF3DGS_Render:
                             print("Successfully moved rendered_image to CPU")
                         except:
                             print("Error moving rendered_image to CPU")
-                            
+
                         # print(f"Type of out[0]: {type(out[0])}")
                         # print(f"Type of out[1]: {type(out[1])}")
                         # print(f"Type of out[2]: {type(out[2])}")
