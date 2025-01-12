@@ -108,7 +108,7 @@ class CFGaussianTrainer(GaussianTrainer):
             convert_SHs_python=pipe.convert_SHs_python,
             override_color=colors_precomp)
         # render_pkg is a list contains 4 render_pkgs
-        print("\033[32m[INFO] render_pkg in func train_step is {}\033[32m".format(render_pkg))
+        print("\033[32m[INFO] render_pkg in func train_step is {}\033[0m".format(render_pkg))
         if prev_gaussians is not None:
             with torch.no_grad():
                 # Render
@@ -123,7 +123,7 @@ class CFGaussianTrainer(GaussianTrainer):
             render_pkg["depth"] = render_pkg["depth"] * \
                 mask + render_pkg_prev["depth"] * (1 - mask)
         
-        print("\033[32m[INFO] render_pkg right now is {}\033[32m".format(render_pkg))
+        # print("\033[32m[INFO] render_pkg right now is {}\033[32m".format(render_pkg))
         print("length of render_pkg is {}".format(len(render_pkg)))
         # images, viewspace_point_tensor, visibility_filter, radii = (render_pkg["image"],
         #                                                            render_pkg["viewspace_points"],
