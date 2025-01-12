@@ -753,7 +753,7 @@ class GaussianTrainer(object):
                                   uid=idx[i], is_co3d=True)
                 viewpoint_camera.append(single_viewpoint_camera)
             # ------------------------------load 4 viewpoint camera------------------------------
-
+            print("viewpoint_camera from func load_viewpoint_cam is {}".format(viewpoint_camera))
             if load_depth:
                for i in range(4):
                     if idx[i] not in self.mono_depth:
