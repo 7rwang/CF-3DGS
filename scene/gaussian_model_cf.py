@@ -924,7 +924,7 @@ class CF3DGS_Render:
                     shs_view = self.gaussians.get_features.transpose(1, 2).view(
                         -1, 3, (self.gaussians.max_sh_degree + 1) ** 2
                     )
-                    print("shs_view is {}".format(shs_view))
+                    # print("shs_view is {}".format(shs_view))
                     # colors_precomp_list = []
                     # for camera in viewpoint_camera:
                     # fidx = camera.uid
@@ -969,7 +969,7 @@ class CF3DGS_Render:
                     # print("2_colors_precomp shape is {}".format(colors_precomp.shape))
             else:
                 shs = self.gaussians.get_features
-                print("shs is {}".format(shs))
+                # print("shs is {}".format(shs))
         else:
             print("colors_precomp is not None!!!!!!!!!!!!!!!!")
             override_color_list = []
@@ -1034,35 +1034,35 @@ class CF3DGS_Render:
                 
                 if isinstance(out, (list, tuple)):
                     if len(out) == 4:
-                        print("\033[32m[INFO]11111111111111111\033[0m")
+                        # print("\033[32m[INFO]11111111111111111\033[0m")
                         rendered_image, radii, rendered_depth, rendered_alpha = out
-                        print("\033[32m[INFO]22222222222222222\033[0m")
-                        try:
-                            print(f"rendered_image shape: {rendered_image.shape}")
-                        except:
-                            print("Error accessing rendered_image shape")
+                        # print("\033[32m[INFO]22222222222222222\033[0m")
+                        # try:
+                        #     print(f"rendered_image shape: {rendered_image.shape}")
+                        # except:
+                        #     print("Error accessing rendered_image shape")
                             
-                        try:
-                            print(f"radii shape: {radii.shape}")
-                        except:
-                            print("Error accessing radii shape")
+                        # try:
+                        #     print(f"radii shape: {radii.shape}")
+                        # except:
+                        #     print("Error accessing radii shape")
                             
-                        try:
-                            print(f"rendered_depth shape: {rendered_depth.shape}")
-                        except:
-                            print("Error accessing rendered_depth shape")
+                        # try:
+                        #     print(f"rendered_depth shape: {rendered_depth.shape}")
+                        # except:
+                        #     print("Error accessing rendered_depth shape")
                             
-                        try:
-                            print(f"rendered_alpha shape: {rendered_alpha.shape}")
-                        except:
-                            print("Error accessing rendered_alpha shape")
+                        # try:
+                        #     print(f"rendered_alpha shape: {rendered_alpha.shape}")
+                        # except:
+                        #     print("Error accessing rendered_alpha shape")
 
                         # 尝试移动到CPU看是否可以访问
-                        try:
-                            rendered_image_cpu = rendered_image.cpu()
-                            print("Successfully moved rendered_image to CPU")
-                        except:
-                            print("Error moving rendered_image to CPU")
+                        # try:
+                        #     rendered_image_cpu = rendered_image.cpu()
+                        #     print("Successfully moved rendered_image to CPU")
+                        # except:
+                        #     print("Error moving rendered_image to CPU")
 
                         # print(f"Type of out[0]: {type(out[0])}")
                         # print(f"Type of out[1]: {type(out[1])}")
@@ -1085,11 +1085,11 @@ class CF3DGS_Render:
                         # print(f"rendered_depth is None: {rendered_depth is None}")
                         # print(f"rendered_alpha is None: {rendered_alpha is None}")
 
-                        try:
-                            print(f"rendered_image has nan: {torch.isnan(rendered_image).any().item()}")
-                            print(f"rendered_image has inf: {torch.isinf(rendered_image).any().item()}")
-                        except:
-                            print("Error checking rendered_image values")
+                        # try:
+                        #     print(f"rendered_image has nan: {torch.isnan(rendered_image).any().item()}")
+                        #     print(f"rendered_image has inf: {torch.isinf(rendered_image).any().item()}")
+                        # except:
+                        #     print("Error checking rendered_image values")
 
                         torch.cuda.synchronize()
                         print("\033[34m[DEBUG] rendered_image device: {}, dtype: {}, shape: {}\033[0m".format(
