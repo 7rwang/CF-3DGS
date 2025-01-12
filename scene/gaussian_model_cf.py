@@ -1018,7 +1018,7 @@ class CF3DGS_Render:
                     rotations=rotations,
                     cov3D_precomp=cov3D_precomp,
                 )
-                print("Rasterizer output received")
+                # print("Rasterizer output received")
 
             
                 if isinstance(out, (list, tuple)):
