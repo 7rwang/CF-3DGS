@@ -1020,9 +1020,9 @@ class CF3DGS_Render:
                 
                 if isinstance(out, (list, tuple)):
                     if len(out) == 4:
-                        print("\033[32m[INFO]11111111111111111")
+                        print("\033[32m[INFO]11111111111111111\033[0m")
                         rendered_image, radii, rendered_depth, rendered_alpha = out
-                        print("\033[32m[INFO]22222222222222222")
+                        print("\033[32m[INFO]22222222222222222\033[0m")
 
                         torch.cuda.synchronize()
                         print("\033[34m[DEBUG] rendered_image device: {}, dtype: {}, shape: {}\033[0m".format(
@@ -1035,7 +1035,7 @@ class CF3DGS_Render:
                         if torch.isinf(rendered_image).any():
                             print("\033[31m[ERROR] rendered_image contains Infs\033[0m")
 
-                        print("\033[32m[INFO]333333333333333333")
+                        print("\033[32m[INFO]333333333333333333\033[0m")
                         rendered_image = rendered_image.clamp(0, 1)
                         print("\033[32m[INFO]Clamp operation completed\033[0m")
                         
@@ -1049,13 +1049,13 @@ class CF3DGS_Render:
                             "visibility_filter": radii > 0,
                             "radii": radii,
                         }
-                        print("\033[32m[INFO]4444444444444444444")
+                        print("\033[32m[INFO]4444444444444444444\033[0m")
                     elif len(out) == 3:
-                        print("\033[32m[INFO]55555555555555555555")
+                        print("\033[32m[INFO]55555555555555555555\033[0m")
                         rendered_image, radii, rendered_depth = out
-                        print("\033[32m[INFO]66666666666666666666")
+                        print("\033[32m[INFO]66666666666666666666\033[0m")
                         rendered_image = rendered_image.clamp(0, 1)
-                        print("\033[32m[INFO]7777777777777777777777")
+                        print("\033[32m[INFO]7777777777777777777777\033[0m")
                         output_dict = {
                             "image": rendered_image,
                             "depth": rendered_depth,
