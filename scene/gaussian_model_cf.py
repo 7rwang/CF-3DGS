@@ -960,7 +960,7 @@ class CF3DGS_Render:
                         colors_precomp_list.append(rgb)
             
                     # 堆叠所有相机的结果 (4, N, 3)
-                    colors_precomp = torch.stack(colors_precomp_list, dim=0)
+                    colors_precomp = torch.stack(colors_precomp_list, dim=0).to("cuda")
                     # print("1_colors_precomp shape is {}".format(colors_precomp.shape))
                 else:
                     colors_precomp = self.gaussians.get_features_noview
@@ -975,7 +975,7 @@ class CF3DGS_Render:
                 
             colors_precomp = torch.stack(override_color_list, dim=0)
 
-          
+        print("\033[32m[INFO] colors_precomp is None?{}".format(colors_precomp == None))
         # print("colors_precomp type:", type(colors_precomp)) 
         # print("colors_precomp shape:", colors_precomp.shape if hasattr(colors_precomp, 'shape') else None)
         # print("rasterizer length:", len(rasterizer))
