@@ -989,7 +989,6 @@ class CF3DGS_Render:
             # print(f"Processing rasterizer {idx}")
             try:
                 if colors_precomp is not None:
-                    pdb.set_trace()
                     current_colors_precomp = colors_precomp[idx]
                 else:
                     current_colors_precomp = colors_precomp
@@ -998,8 +997,15 @@ class CF3DGS_Render:
                 # print("\033[31m colors_precomp is : {}\033[0m".format(colors_precomp))
                 # print("means3D shape:", means3D.shape)
                 # print("means2D shape:", means2D.shape)
+                print(f"means3D device: {means3D.device}, shape: {means3D.shape}")
+                print(f"means2D device: {means2D.device}, shape: {means2D.shape}")
+                print(f"shs device: {shs.device}, shape: {shs.shape}")
+                print(f"current_colors_precomp device: {current_colors_precomp.device}, shape: {current_colors_precomp.shape}")
+                print(f"opacities device: {opacity.device}, shape: {opacity.shape}")
+                print(f"scales device: {scales.device}, shape: {scales.shape}")
+                print(f"rotations device: {rotations.device}, shape: {rotations.shape}")
+                print(f"cov3D_precomp device: {cov3D_precomp.device}, shape: {cov3D_precomp.shape}")
 
-                pdb.set_trace()
                 out = current_rasterizer(
                     means3D=means3D,
                     means2D=means2D,
@@ -1013,11 +1019,12 @@ class CF3DGS_Render:
                 # print(f"\033[31m Rasterizer {idx} output type: {type(out)}, length: {len(out)}\033[0m")
                 
                 if isinstance(out, (list, tuple)):
-                    pdb.set_trace()
                     if len(out) == 4:
+                        print("\033[32m[INFO]11111111111111111")
                         rendered_image, radii, rendered_depth, rendered_alpha = out
+                        print("\033[32m[INFO]22222222222222222")
                         rendered_image = rendered_image.clamp(0, 1)
-
+                        print("\033[32m[INFO]333333333333333333")
                         # Those Gaussians that were frustum culled or had a radius of 0 were not visible.
                         # They will be excluded from value updates used in the splitting criteria.
                         output_dict = {
@@ -1028,9 +1035,13 @@ class CF3DGS_Render:
                             "visibility_filter": radii > 0,
                             "radii": radii,
                         }
+                        print("\033[32m[INFO]4444444444444444444")
                     elif len(out) == 3:
+                        print("\033[32m[INFO]55555555555555555555")
                         rendered_image, radii, rendered_depth = out
+                        print("\033[32m[INFO]66666666666666666666")
                         rendered_image = rendered_image.clamp(0, 1)
+                        print("\033[32m[INFO]7777777777777777777777")
                         output_dict = {
                             "image": rendered_image,
                             "depth": rendered_depth,
