@@ -269,7 +269,7 @@ class CFGaussianTrainer(GaussianTrainer):
         # Initialize gaussians
         self.loss_func.depth_loss_type = "invariant"
         # Set seq_idx manually
-        self.gs_render_local.gaussians.seq_idx = 1
+        # self.gs_render_local.gaussians.seq_idx = 1
         print("Current seq_idx is {}".format(self.gs_render_local.gaussians.seq_idx))
 
         pipe = copy(self.pipe_cfg)
@@ -291,7 +291,7 @@ class CFGaussianTrainer(GaussianTrainer):
             optim_opt, fix_pos=True,)
         image_names = [vc.original_image.cuda() for vc in viewpoint_cam]
         all_zero = all(torch.all(tensor == 0) for tensor in image_names)
-        print("\033[32m[INFO] all zero ? {}".format(all_zero))
+        print("\033[32m[INFO] all zero ? {}\033[0m".format(all_zero))
         # print("\033[\32m[INFO] Image names are all zero?: {}".format(torch.all(image_names==0).item()))
         # -------------------------------optimize Gaussian-------------------------------
         for iteration in range(1, optim_opt.iterations+1):
@@ -329,7 +329,7 @@ class CFGaussianTrainer(GaussianTrainer):
         # print("\033[32m[INFO]:viewpoint_cam_ref is {}\033[0m".format(viewpoint_cam_ref))
         image_ref = [vc.original_image.cuda() for vc in viewpoint_cam_ref]
         all_zero_2 = all(torch.all(tensor == 0) for tensor in image_ref)
-        print("\033[32m[INFO] all zero ? {}".format(all_zero_2))
+        print("\033[32m[INFO] all zero ? {}\033[0m".format(all_zero_2))
         # print("\033[\32m[INFO] Image ref names are all zero? : {}".format(torch.all(image_ref_names==0).item()))
         optim_opt.iterations = 300
         optim_opt.densify_from_iter = optim_opt.iterations + 1
@@ -417,7 +417,7 @@ class CFGaussianTrainer(GaussianTrainer):
         progress_bar = tqdm(range(num_iterations), desc="Training progress")
 
         for iteration in range(1, num_iterations+1):
-            print("这 里 运 行 过 了 操 你 妈 的\n!!!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!")
+            # print("这 里 运 行 过 了 操 你 妈 的\n!!!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!")
             if view_idx[0] <= 0:
                 fidx = [0,1,2,3]
             else:
@@ -469,7 +469,7 @@ class CFGaussianTrainer(GaussianTrainer):
                 progress_bar.close()
         # ---------------------------------------------------------------------------------------
         self.gs_render_local.gaussians.seq_idx += 1
-        print("这 里 也 也 也 也 也 也 运 行 过 了 操 你 妈 的\n!!!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!")
+        # print("这 里 也 也 也 也 也 也 运 行 过 了 操 你 妈 的\n!!!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!")
 
         return pcd, local_model_params
 
@@ -565,6 +565,7 @@ class CFGaussianTrainer(GaussianTrainer):
 
             # 这个for循环应该是需要修改的，这里应该就是在读取图像
             previous_batch_fidx = init_idx
+            self.gs_render_local.gaussians.seq_idx = 1
             for i in range(start_frame, end_frame, batch_size):
                 curr_batch_fidx = list(range(i, min(i + batch_size, end_frame)))
                 print(f"Current batch_fidx: {curr_batch_fidx}")
