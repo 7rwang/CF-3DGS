@@ -381,7 +381,7 @@ class CFGaussianModel:
         self.rotate_xyz = False
 
     
-    def update_RT_seq(self, poses, idx):
+    def update_RT_seq(self, pose, idx):
         quat = matrix_to_quaternion(pose[:3, :3])
         quat = quat[..., [1, 2, 3, 0]]
         pose = torch.cat((pose[:3, 3], quat.float()), -

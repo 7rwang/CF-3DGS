@@ -289,7 +289,8 @@ class CFGaussianTrainer(GaussianTrainer):
                             desc="Training progress")
         self.gs_render_local.gaussians.training_setup(
             optim_opt, fix_pos=True,)
-        print("viewpoint_cam is: {}".format(viewpoint_cam))
+        image_names = [vc.original_image.cuda() for vc in viewpoint_cam]
+        print("\033[\32m[INFO] Image names are : {}".format(image_names))
         # -------------------------------optimize Gaussian-------------------------------
         for iteration in range(1, optim_opt.iterations+1):
             # Update learning rate
@@ -315,15 +316,17 @@ class CFGaussianTrainer(GaussianTrainer):
                 progress_bar.close()
         # print(f"optimizing frame {view_idx:03d}")
         print("optimizing frame {}".format(self.gs_render_local.gaussians.seq_idx))
-        print("Previous view_idx is {}".format(view_idx_prev))
-        print("Current view_idx is {}".format(view_idx))
+        # print("Previous view_idx is {}".format(view_idx_prev))
+        # print("Current view_idx is {}".format(view_idx))
         # -------------------------------optimize Gaussian-----------------------------------
 
 
         # -------------------------------optimize R&T----------------------------------------
         viewpoint_cam_ref = self.load_viewpoint_cam(view_idx,
                                                     load_depth=True)
-        print("\033[32m[INFO]:viewpoint_cam_ref is {}\033[0m".format(viewpoint_cam_ref))
+        # print("\033[32m[INFO]:viewpoint_cam_ref is {}\033[0m".format(viewpoint_cam_ref))
+        image_ref_names = [vc.original_image.cuda() for vc in viewpoint_cam_ref]
+        print("\033[\32m[INFO] Image ref names are : {}".format(image_ref_names))
         optim_opt.iterations = 300
         optim_opt.densify_from_iter = optim_opt.iterations + 1
         self.gs_render_local.gaussians.init_RT(None)
