@@ -124,7 +124,7 @@ class CFGaussianTrainer(GaussianTrainer):
                 mask + render_pkg_prev["depth"] * (1 - mask)
         
         # print("\033[32m[INFO] render_pkg right now is {}\033[32m".format(render_pkg))
-        print("length of render_pkg is {}".format(len(render_pkg)))
+        # print("length of render_pkg is {}".format(len(render_pkg)))
         # images, viewspace_point_tensor, visibility_filter, radii = (render_pkg["image"],
         #                                                            render_pkg["viewspace_points"],
         #                                                            render_pkg["visibility_filter"],
@@ -215,7 +215,7 @@ class CFGaussianTrainer(GaussianTrainer):
                                                          orthogonal=True,
                                                          down_sample=True)
         radius = np.linalg.norm(pcd.points, axis=1).max()
-        print("\033[32m[INFO]viewpoint_camera from func init_two_view is {}\033[0m".format(viewpoint_cam))
+        # print("\033[32m[INFO]viewpoint_camera from func init_two_view is {}\033[0m".format(viewpoint_cam))
         # Initialize gaussians
         self.gs_render.reset_model()
         self.gs_render.init_model(pcd,)
