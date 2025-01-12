@@ -992,7 +992,8 @@ class CF3DGS_Render:
                 else:
                     current_colors_precomp = colors_precomp
 
-                # print("colors_precomp shape:", colors_precomp.shape)
+                print("\033[31m[INFO] current_colors_precomp is None?{}\033[0m".format(current_colors_precomp is None))
+                print("\033[31m colors_precomp is : {}\033[0m".format(colors_precomp))
                 # print("means3D shape:", means3D.shape)
                 # print("means2D shape:", means2D.shape)
         
@@ -1006,7 +1007,7 @@ class CF3DGS_Render:
                     rotations=rotations,
                     cov3D_precomp=cov3D_precomp,
                 )
-                # print(f"Rasterizer {idx} output type: {type(out)}, length: {len(out)}")
+                print(f"\033[31m Rasterizer {idx} output type: {type(out)}, length: {len(out)}\033[0m")
                 
                 if isinstance(out, (list, tuple)):
                     if len(out) == 4:
