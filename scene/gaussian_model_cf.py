@@ -870,12 +870,12 @@ class CF3DGS_Render:
         out_images = []
         # Set up rasterization configuration
         for vw_camera in viewpoint_camera:
-            print("vw_camera.image_height is {}".format(vw_camera.image_height))
-            print("vw_camera.image_width is {}".format(vw_camera.image_width))
-            print("scaling_modifier is {}".format(scaling_modifier))
-            print("view_matrix is {}".format(vw_camera.world_view_transform))
-            print("promatrix is {}".format(vw_camera.full_proj_transform))
-            print("campos is {}".format(vw_camera.camera_center))
+            # print("vw_camera.image_height is {}".format(vw_camera.image_height))
+            # print("vw_camera.image_width is {}".format(vw_camera.image_width))
+            # print("scaling_modifier is {}".format(scaling_modifier))
+            # print("view_matrix is {}".format(vw_camera.world_view_transform))
+            # print("promatrix is {}".format(vw_camera.full_proj_transform))
+            # print("campos is {}".format(vw_camera.camera_center))
             tanfovx = math.tan(vw_camera.FoVx * 0.5)
             tanfovy = math.tan(vw_camera.FoVy * 0.5)
             # print("\033[32m fovx from vw_camera in func render is {}\033[0m".format(vw_camera.FoVx))
@@ -898,9 +898,9 @@ class CF3DGS_Render:
             current_rasterizer = GaussianRasterizer(raster_settings=raster_settings)
             rasterizer.append(current_rasterizer)
         #raster_setting_list and rasterizer are modified so far
-            print("mean3D is {}".format(self.gaussians.get_xyz))
-            print("mean2D is {}".format(screenspace_points))
-            print("opacity is {}".format(self.gaussians.get_opacity))
+            # print("mean3D is {}".format(self.gaussians.get_xyz))
+            # print("mean2D is {}".format(screenspace_points))
+            # print("opacity is {}".format(self.gaussians.get_opacity))
             means3D = self.gaussians.get_xyz
             means2D = screenspace_points
             opacity = self.gaussians.get_opacity
@@ -1025,7 +1025,8 @@ class CF3DGS_Render:
                     if len(out) == 4:
                         # print("\033[32m[INFO]11111111111111111\033[0m")
                         rendered_image, radii, rendered_depth, rendered_alpha = out
-                        # print("\033[32m[INFO]22222222222222222\033[0m")
+                        all_zero = all(torch.all(rendered_image == 0))
+                        print("\033[32m[INFO] all zero in renderedImgaes? {}\033[0m".format(all_zero))
                         rendered_image = rendered_image.clamp(0, 1)
                      
                         # Those Gaussians that were frustum culled or had a radius of 0 were not visible.
