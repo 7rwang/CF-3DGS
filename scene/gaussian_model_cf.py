@@ -192,6 +192,7 @@ class CFGaussianModel:
     def create_from_pcd(self, pcd: BasicPointCloud, spatial_lr_scale: float):
         self.spatial_lr_scale = spatial_lr_scale
         fused_point_cloud = torch.tensor(np.asarray(pcd.points)).float().cuda()
+        print("fused_point_cloud shape when first initialized {}".format(fused_point_cloud.shape))
         if self.view_dependent:
             fused_color = RGB2SH(torch.tensor(
                 np.asarray(pcd.colors)).float().cuda())
