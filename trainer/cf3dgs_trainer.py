@@ -300,7 +300,7 @@ class CFGaussianTrainer(GaussianTrainer):
         for iteration in range(1, optim_opt.iterations+1):
             # Update learning rate
             self.gs_render_local.gaussians.update_learning_rate(iteration)
-            loss, 2, psnr_train = self.train_step(self.gs_render_local,
+            loss, rend_dict, psnr_train = self.train_step(self.gs_render_local,
                                                           viewpoint_cam, iteration,
                                                           pipe, optim_opt,
                                                           #   depth_gt=self.mono_depth[view_idx_prev],
