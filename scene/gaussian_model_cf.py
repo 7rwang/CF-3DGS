@@ -194,20 +194,21 @@ class CFGaussianModel:
         fused_point_cloud = torch.tensor(np.asarray(pcd.points)).float().cuda()
         print("fused_point_cloud shape when first initialized {}".format(fused_point_cloud.shape))
         print("self.view_dependent is {}".format(self.view_dependent))
+        print("np.asarray(pcd.colors) is {}".format(np.asarray(pcd.colors)))
         if self.view_dependent:
             fused_color = RGB2SH(torch.tensor(
                 np.asarray(pcd.colors)).float().cuda())
         else:
             fused_color = torch.tensor(np.asarray(pcd.colors)).float().cuda()
+        print("fused_color shape is {}".format(fused_color.shape))
+        print("fused_color is {}".format(fused_color))
         features = torch.zeros(
             (fused_color.shape[0], 3, (self.max_sh_degree + 1) ** 2)).float().cuda()
         features[:, :3, 0] = fused_color[:, :3]
         features[:, 3:, 1:] = 0.0
         print("features shape when first initialized {}".format(features.shape))
         # features = torch.cat([features, features], dim=1)
-        print("Number of points at initialisation : ",
-              fused_point_cloud.shape[0])
-        import pdb; pdb.set_trace()
+        print("Number of points at initialisation : ",fused_point_cloud.shape[0])
         dist2 = torch.clamp_min(distCUDA2(torch.from_numpy(
             np.asarray(pcd.points)).float().cuda()), 0.0000001)
         scales = torch.log(torch.sqrt(dist2))[..., None].repeat(1, 3)
