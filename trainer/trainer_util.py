@@ -551,7 +551,7 @@ class GaussianTrainer(object):
         x, y, z, w = idx
         image_names = [self.data[x], self.data[y], self.data[z], self.data[w]]
         # print("\033[32midx in func prepare_custom_data is {}\033[0m".format(idx))
-        # print("\033[32m[INFO] image names are : {}\033[0m".format(image_names))
+        print("\033[32m[INFO] image names are : {}\033[0m".format(image_names))
         images = []
         depth_tensors = []
         pcd_data_list = []
@@ -568,6 +568,7 @@ class GaussianTrainer(object):
                     (width // 2, height // 2), Image.LANCZOS)
                 width, height = original_image.size
             image_np = np.asarray(original_image) / 255.0
+            print("\033[32m [INFO]image_np shape is {}\033[0m".format(image_np.shape))
             color_torch = torch.from_numpy(np.asarray(
                 original_image) / 255.0).permute(2, 0, 1).float()
             
