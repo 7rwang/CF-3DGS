@@ -631,6 +631,9 @@ class GaussianTrainer(object):
             if pcd.is_empty():
                 raise ValueError(f"\033[31m[ERROR]Cannot load '{pcd}'\033[0m")
             print(f"\033[32m [INFO]Load pcd successfully! {pcd}\033[0m")
+            
+            print("pcd colors shape is {}".format(np.asarray(pcd.colors).shape))
+            print("pcd points shape is {}".format(np.asarray(pcd.points).shape))
             # pcd_data = o3d.geometry.PointCloud()
             # pcd_data.points = o3d.utility.Vector3dVector(points)
             # pcd_data.colors = o3d.utility.Vector3dVector(image_np.reshape(-1, 3))
