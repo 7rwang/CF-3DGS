@@ -968,7 +968,8 @@ class CF3DGS_Render:
                     print("2_colors_precomp shape is {}".format(colors_precomp.shape))
             else:
                 shs = self.gaussians.get_features
-                print("shs is {}运行到了这个else语句".format(shs))
+                # print("shs is {}运行到了这个else语句".format(shs))
+                print("shs shape is {}运行到了这个else语句".format(shs.shape))
         else:
             print("colors_precomp is not None!!!!!!!!!!!!!!!!")
             override_color_list = []
