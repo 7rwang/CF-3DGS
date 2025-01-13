@@ -550,6 +550,7 @@ class CFGaussianTrainer(GaussianTrainer):
         reverse = False
         init_idx = [0, 1, 2, 3]
         start_frame = max(init_idx) + 1
+        self.gs_render_local.gaussians.seq_idx = 1
         # 主要负责参数初始化、优化配置
         for epoch in range(num_epoch):
             gauss_params = self.init_two_view(
@@ -565,7 +566,6 @@ class CFGaussianTrainer(GaussianTrainer):
 
             # 这个for循环应该是需要修改的，这里应该就是在读取图像
             previous_batch_fidx = init_idx
-            self.gs_render_local.gaussians.seq_idx = 1
             for i in range(start_frame, end_frame, batch_size):
                 curr_batch_fidx = list(range(i, min(i + batch_size, end_frame)))
                 print(f"Current batch_fidx: {curr_batch_fidx}")
