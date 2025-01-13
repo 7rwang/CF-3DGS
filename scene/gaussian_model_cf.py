@@ -999,20 +999,7 @@ class CF3DGS_Render:
                 else:
                     current_colors_precomp = colors_precomp
 
-                # print("\033[31m[INFO] current_colors_precomp is None?{}\033[0m".format(current_colors_precomp is None))
-                # print("\033[31m colors_precomp is : {}\033[0m".format(colors_precomp))
-                # print("means3D shape:", means3D.shape)
-                # print("means2D shape:", means2D.shape)
-                # print(f"means3D device: {means3D.device}, shape: {means3D.shape}")
-                # print(f"means2D device: {means2D.device}, shape: {means2D.shape}")
-                # print(f"shs: {shs}")
-                # print("shs type is {}".format(shs))
-                # print(f"current_colors_precomp device: {current_colors_precomp.device}, shape: {current_colors_precomp.shape}")
-                # print(f"opacities device: {opacity.device}, shape: {opacity.shape}")
-                # print(f"scales device: {scales.device}, shape: {scales.shape}")
-                # print(f"rotations device: {rotations.device}, shape: {rotations.shape}")
-                # print(f"cov3D_precomp device: {cov3D_precomp.device}, shape: {cov3D_precomp.shape}")
-
+      
                 out = current_rasterizer(
                     means3D=means3D,
                     means2D=means2D,

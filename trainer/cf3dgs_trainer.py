@@ -18,7 +18,7 @@ import json
 import gzip
 import torch
 import torch.nn.functional as F
-from torchvision import io
+from torchvision import io, utils
 from PIL import Image
 from einops import rearrange
 import pickle
@@ -290,7 +290,7 @@ class CFGaussianTrainer(GaussianTrainer):
         optim_opt.iterations = 1000
         optim_opt.densify_from_iter = optim_opt.iterations + 1
         progress_bar = tqdm(range(optim_opt.iterations),
-                            desc="Training progress")
+                            desc="Training progress_optimize_gs")
         self.gs_render_local.gaussians.training_setup(
             optim_opt, fix_pos=True,)
         image_names = [vc.original_image.cuda() for vc in viewpoint_cam]
@@ -325,7 +325,8 @@ class CFGaussianTrainer(GaussianTrainer):
         # print("Previous view_idx is {}".format(view_idx_prev))
         # print("Current view_idx is {}".format(view_idx))
         # -------------------------------optimize Gaussian-----------------------------------
-
+        save_path = "/home/xduo/桌面/CF-3DGS/output/render"
+        utils.save_image(rend_dict['image'], save_path)
 
         # -------------------------------optimize R&T----------------------------------------
         viewpoint_cam_ref = self.load_viewpoint_cam(view_idx,
@@ -342,7 +343,7 @@ class CFGaussianTrainer(GaussianTrainer):
             optim_opt, gaussian_rot=False)
 
         progress_bar = tqdm(range(optim_opt.iterations),
-                            desc="Training progress")
+                            desc="Training progress_optimize_RT")
         for iteration in range(1, optim_opt.iterations+1):
             # Update learning rate
             self.gs_render_local.gaussians.update_learning_rate(iteration)
@@ -358,9 +359,9 @@ class CFGaussianTrainer(GaussianTrainer):
             if iteration == optim_opt.iterations:
                 progress_bar.close()
 
-        # self.visualize(rend_dict_ref, "vis/render_optim.png",
-        #                gt_image=viewpoint_cam_ref.original_image.cuda(),
-        #                gt_depth=self.mono_depth[view_idx_prev])
+        self.visualize(rend_dict_ref, "vis/render_optim.png",
+                       gt_image=viewpoint_cam_ref.original_image.cuda(),
+                       gt_depth=self.mono_depth[view_idx_prev])
         local_model_params = self.gs_render_local.gaussians.capture()
 
         # pcd under view_idx_prev frame
@@ -368,10 +369,8 @@ class CFGaussianTrainer(GaussianTrainer):
         # rel_pose and pose have same shape (N, 4, 4)
         # Ultimate Rt's shape should be (4, 4)
 
-        rel_pose = self.gs_render_local.gaussians.get_RT().detach() # N,4,4
-        print("rel_pose shape is {}".format(rel_pose.shape))
-        pose = rel_pose @ self.gs_render.gaussians.get_RT(self.gs_render_local.gaussians.seq_idx).detach() # N,4,4
-        print("pose shape is {}".format(pose.shape))
+        rel_pose = self.gs_render_local.gaussians.get_RT().detach() # 4,4
+        pose = rel_pose @ self.gs_render.gaussians.get_RT(self.gs_render_local.gaussians.seq_idx).detach() # 4,4
 
         self.gs_render.gaussians.update_RT_seq(pose, self.gs_render_local.gaussians.seq_idx)
         # import pad; pdb.set_trace()
@@ -418,10 +417,9 @@ class CFGaussianTrainer(GaussianTrainer):
         elif min_curr_prev < int(self.single_step // 100):
             num_iterations = 100
 
-        progress_bar = tqdm(range(num_iterations), desc="Training progress")
+        progress_bar = tqdm(range(num_iterations), desc="Training progress_不知所措进度条")
 
         for iteration in range(1, num_iterations+1):
-            # print("这 里 运 行 过 了 操 你 妈 的\n!!!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!")
             if view_idx[0] <= 0:
                 fidx = [0,1,2,3]
             else:
@@ -473,7 +471,6 @@ class CFGaussianTrainer(GaussianTrainer):
                 progress_bar.close()
         # ---------------------------------------------------------------------------------------
         self.gs_render_local.gaussians.seq_idx += 1
-        # print("这 里 也 也 也 也 也 也 运 行 过 了 操 你 妈 的\n!!!!!!!!!!!!!!!!!!!!!!!!\n!!!!!!!!!!!!!!!!!!!")
 
         return pcd, local_model_params
 
