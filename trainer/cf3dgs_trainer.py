@@ -236,7 +236,7 @@ class CFGaussianTrainer(GaussianTrainer):
         optim_opt.iterations = 1000
         optim_opt.densify_from_iter = optim_opt.iterations + 1
         progress_bar = tqdm(range(optim_opt.iterations),
-                            desc="Training progress")
+                            desc="Training progress_")
         self.gs_render.gaussians.training_setup(optim_opt, fix_pos=True,)
         for iteration in range(1, optim_opt.iterations+1):
             # Update learning rate
@@ -325,8 +325,11 @@ class CFGaussianTrainer(GaussianTrainer):
         # print("Previous view_idx is {}".format(view_idx_prev))
         # print("Current view_idx is {}".format(view_idx))
         # -------------------------------optimize Gaussian-----------------------------------
-        save_path = "/home/xduo/桌面/CF-3DGS/output/render"
-        utils.save_image(rend_dict['image'], save_path)
+        save_path = "/home/xduo/桌面/CF-3DGS/output/render/image_{i}"
+        for i in view_idx_prev:
+            save_path = "/home/xduo/桌面/CF-3DGS/output/render/image_{i}"
+            image = rend_dict[i]['image']
+            utils.save_image(image, save_path)
 
         # -------------------------------optimize R&T----------------------------------------
         viewpoint_cam_ref = self.load_viewpoint_cam(view_idx,
