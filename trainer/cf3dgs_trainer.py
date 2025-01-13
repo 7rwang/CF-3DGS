@@ -325,10 +325,19 @@ class CFGaussianTrainer(GaussianTrainer):
         # print("Previous view_idx is {}".format(view_idx_prev))
         # print("Current view_idx is {}".format(view_idx))
         # -------------------------------optimize Gaussian-----------------------------------
-        save_path = "/home/xduo/桌面/CF-3DGS/output/render/image_{i}"
+        
+        output_dir = "/home/xduo/桌面/CF-3DGS/output/render"
+        os.makedirs(output_dir, exist_ok=True)
+
+        # 遍历视图索引并保存图片
         for i in view_idx_prev:
-            save_path = "/home/xduo/桌面/CF-3DGS/output/render/image_{i}"
+            # 构造完整的保存路径，使用 f-string 格式化
+            save_path = os.path.join(output_dir, f"image_{i}.png")
+            
+            # 获取图片数据
             image = rend_dict[i]['image']
+            
+            # 保存图片
             utils.save_image(image, save_path)
 
         # -------------------------------optimize R&T----------------------------------------
