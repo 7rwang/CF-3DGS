@@ -638,8 +638,8 @@ class GaussianTrainer(object):
 
             if down_sample:
                 voxel_size = 0.01
-                while len(pcd_data.points)> 1_000_000:
-                    pcd_data = pcd_data.voxel_down_sample(voxel_size=voxel_size)
+                while len(pcd.points)> 1_000_000:
+                    pcd= pcd.voxel_down_sample(voxel_size=voxel_size)
                     voxel_size *= 5
 
             colors = np.asarray(pcd.colors, dtype=np.float32)
