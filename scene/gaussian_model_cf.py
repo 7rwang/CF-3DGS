@@ -947,7 +947,7 @@ class CF3DGS_Render:
                     dir_pp_normalized = dir_pp / \
                         dir_pp.norm(dim=1, keepdim=True)
                     
-                    print(f"dir_pp_normalized range: min={dir_pp_normalized.min().item()}, max={dir_pp_normalized.max().item()}")
+                    # print(f"dir_pp_normalized range: min={dir_pp_normalized.min().item()}, max={dir_pp_normalized.max().item()}")
                     colors_precomp_list = []
                     for cam_idx in range(4):
                         sh2rgb = eval_sh(
@@ -955,9 +955,9 @@ class CF3DGS_Render:
                             shs_view,
                              dir_pp_normalized[:, cam_idx]  # (N, 3)
                             )
-                        print(f"Camera {cam_idx} sh2rgb range: min={sh2rgb.min().item()}, max={sh2rgb.max().item()}")
+                        # print(f"Camera {cam_idx} sh2rgb range: min={sh2rgb.min().item()}, max={sh2rgb.max().item()}")
                         rgb = torch.clamp_min(sh2rgb + 0.5, 0.0)
-                        print(f"Camera {cam_idx} rgb range: min={rgb.min().item()}, max={rgb.max().item()}")
+                        # print(f"Camera {cam_idx} rgb range: min={rgb.min().item()}, max={rgb.max().item()}")
                         colors_precomp_list.append(rgb)
             
                     # 堆叠所有相机的结果 (4, N, 3)
@@ -965,10 +965,10 @@ class CF3DGS_Render:
                     # print("1_colors_precomp shape is {}".format(colors_precomp.shape))
                 else:
                     colors_precomp = self.gaussians.get_features_noview
-                    # print("2_colors_precomp shape is {}".format(colors_precomp.shape))
+                    print("2_colors_precomp shape is {}".format(colors_precomp.shape))
             else:
                 shs = self.gaussians.get_features
-                # print("shs is {}".format(shs))
+                print("shs is {}运行到了这个else语句".format(shs))
         else:
             print("colors_precomp is not None!!!!!!!!!!!!!!!!")
             override_color_list = []
@@ -1028,9 +1028,9 @@ class CF3DGS_Render:
                         
                         rendered_image = rendered_image.clamp(0, 1)
 
-                        print("type of rendered image is {}".format(type(rendered_image)))
+                        # print("type of rendered image is {}".format(type(rendered_image)))
                         all_zero = torch.all(rendered_image == 0)
-                        print("\033[32m[INFO] all zero in renderedImgaes? {}\033[0m".format(all_zero))
+                        # print("\033[32m[INFO] all zero in renderedImgaes? {}\033[0m".format(all_zero))
                      
                         # Those Gaussians that were frustum culled or had a radius of 0 were not visible.
                         # They will be excluded from value updates used in the splitting criteria.
