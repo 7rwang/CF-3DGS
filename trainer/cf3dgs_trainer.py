@@ -132,6 +132,7 @@ class CFGaussianTrainer(GaussianTrainer):
         images = [render["image"] for render in render_pkg]
         viewspace_point_tensor = [render["viewspace_points"] for render in render_pkg]
         visibility_filter = [render["visibility_filter"] for render in render_pkg]
+        import pdb; pdb.set_trace()
         radii = [render["radii"] for render in render_pkg]
 
         # -------------------------------- check data.attribute --------------------------------
@@ -269,7 +270,7 @@ class CFGaussianTrainer(GaussianTrainer):
         # Initialize gaussians
         self.loss_func.depth_loss_type = "invariant"
         # Set seq_idx manually
-        # self.gs_render_local.gaussians.seq_idx = 1
+        self.gs_render_local.gaussians.seq_idx = 1
         print("Current seq_idx is {}".format(self.gs_render_local.gaussians.seq_idx))
 
         pipe = copy(self.pipe_cfg)
@@ -550,7 +551,6 @@ class CFGaussianTrainer(GaussianTrainer):
         reverse = False
         init_idx = [0, 1, 2, 3]
         start_frame = max(init_idx) + 1
-        self.gs_render_local.gaussians.seq_idx = 1
         # 主要负责参数初始化、优化配置
         for epoch in range(num_epoch):
             gauss_params = self.init_two_view(
