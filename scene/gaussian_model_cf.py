@@ -935,8 +935,8 @@ class CF3DGS_Render:
                     shs_view = self.gaussians.get_features.transpose(1, 2).view(
                         -1, 3, (self.gaussians.max_sh_degree + 1) ** 2
                     )
-                    print(f"shs_view shape: {shs_view.shape}")
-                    print(f"shs_view range: min={shs_view.min().item()}, max={shs_view.max().item()}")
+                    # print(f"shs_view shape: {shs_view.shape}")
+                    # print(f"shs_view range: min={shs_view.min().item()}, max={shs_view.max().item()}")
 
                     _, camera_centers, _ = self.load_json("/home/xduo/桌面/CF-3DGS/data/car_4v/calib.json")
                     
@@ -969,11 +969,11 @@ class CF3DGS_Render:
                     # print("1_colors_precomp shape is {}".format(colors_precomp.shape))
                 else:
                     colors_precomp = self.gaussians.get_features_noview
-                    print("2_colors_precomp shape is {}".format(colors_precomp.shape))
+                    # print("2_colors_precomp shape is {}".format(colors_precomp.shape))
             else:
                 shs = self.gaussians.get_features
                 # print("shs is {}运行到了这个else语句".format(shs))
-                print("shs shape is {}运行到了这个else语句".format(shs.shape))
+                # print("shs shape is {}运行到了这个else语句".format(shs.shape))
         else:
             print("colors_precomp is not None!!!!!!!!!!!!!!!!")
             override_color_list = []

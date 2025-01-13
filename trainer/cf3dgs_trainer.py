@@ -279,6 +279,7 @@ class CFGaussianTrainer(GaussianTrainer):
         images, cam_info, pcd, viewpoint_cam = self.prepare_data(view_idx_prev,
                                                          orthogonal=True,
                                                          down_sample=True)
+        
         radius = np.linalg.norm(pcd.points, axis=1).max()
         self.gs_render_local.reset_model()
         # 目前pcd不做调整，还是使用单帧DepthMap来恢复点云
