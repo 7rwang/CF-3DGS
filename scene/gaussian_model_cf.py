@@ -201,6 +201,7 @@ class CFGaussianModel:
             (fused_color.shape[0], 3, (self.max_sh_degree + 1) ** 2)).float().cuda()
         features[:, :3, 0] = fused_color[:, :3]
         features[:, 3:, 1:] = 0.0
+        print("features shape when first initialized {}".format(features.shape))
         # features = torch.cat([features, features], dim=1)
         print("Number of points at initialisation : ",
               fused_point_cloud.shape[0])
