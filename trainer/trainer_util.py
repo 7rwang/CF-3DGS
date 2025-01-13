@@ -627,11 +627,11 @@ class GaussianTrainer(object):
                                 intrinsics=self.intrinsic,
                                 uid=idx, is_co3d=True)
             
-            pcd = o3d.io.read_point_cloud("/home/xduo/桌面/CF-3DGS/data/car_4v/output.pcd")
+            pcd = o3d.io.read_point_cloud("/home/xduo/桌面/CF-3DGS/data/car_4v/output_black.pcd")
             if pcd.is_empty():
                 raise ValueError(f"\033[31m[ERROR]Cannot load '{pcd}'\033[0m")
             print(f"\033[32m [INFO]Load pcd successfully! {pcd}\033[0m")
-            
+
             print("pcd colors shape is {}".format(np.asarray(pcd.colors).shape))
             print("pcd points shape is {}".format(np.asarray(pcd.points).shape))
             # pcd_data = o3d.geometry.PointCloud()
