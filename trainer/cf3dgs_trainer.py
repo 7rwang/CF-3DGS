@@ -132,7 +132,7 @@ class CFGaussianTrainer(GaussianTrainer):
         images = [render["image"] for render in render_pkg]
         viewspace_point_tensor = [render["viewspace_points"] for render in render_pkg]
         visibility_filter = [render["visibility_filter"] for render in render_pkg]
-        import pdb; pdb.set_trace()
+        # import pdb; pdb.set_trace()
         radii = [render["radii"] for render in render_pkg]
 
         # -------------------------------- check data.attribute --------------------------------
@@ -599,6 +599,7 @@ class CFGaussianTrainer(GaussianTrainer):
                     
                     gt_images = [vc.original_image.cuda() for vc in viewpoint_cam]
                     render_images = [rd["image"] for rd in render_dict]
+                    import pdb; pdb.set_trace()
                     gt_images = torch.stack(gt_images)
                     render_images = torch.stack(render_images)
 
