@@ -547,7 +547,7 @@ class GaussianTrainer(object):
 
     def prepare_custom_data(self, idx, down_sample=True,
                             orthogonal=True, pose=None,
-                            load_depth=True, **kwargs):
+                            load_depth=False, **kwargs):
         x, y, z, w = idx
         image_names = [self.data[x], self.data[y], self.data[z], self.data[w]]
         # print("\033[32midx in func prepare_custom_data is {}\033[0m".format(idx))
