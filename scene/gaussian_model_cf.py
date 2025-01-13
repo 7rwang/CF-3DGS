@@ -193,6 +193,7 @@ class CFGaussianModel:
         self.spatial_lr_scale = spatial_lr_scale
         fused_point_cloud = torch.tensor(np.asarray(pcd.points)).float().cuda()
         print("fused_point_cloud shape when first initialized {}".format(fused_point_cloud.shape))
+        print("self.view_dependent is {}".format(self.view_dependent))
         if self.view_dependent:
             fused_color = RGB2SH(torch.tensor(
                 np.asarray(pcd.colors)).float().cuda())
@@ -206,7 +207,7 @@ class CFGaussianModel:
         # features = torch.cat([features, features], dim=1)
         print("Number of points at initialisation : ",
               fused_point_cloud.shape[0])
-
+        import pdb; pdb.set_trace()
         dist2 = torch.clamp_min(distCUDA2(torch.from_numpy(
             np.asarray(pcd.points)).float().cuda()), 0.0000001)
         scales = torch.log(torch.sqrt(dist2))[..., None].repeat(1, 3)
