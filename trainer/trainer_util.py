@@ -627,11 +627,14 @@ class GaussianTrainer(object):
                                 intrinsics=self.intrinsic,
                                 uid=idx, is_co3d=True)
             
-
-            pcd_data = o3d.geometry.PointCloud()
-            pcd_data.points = o3d.utility.Vector3dVector(points)
-            pcd_data.colors = o3d.utility.Vector3dVector(image_np.reshape(-1, 3))
-            pcd_data.estimate_normals()
+            pcd = o3d.io.read_point_cloud("/home/xduo/桌面/CF-3DGS/data/car_4v/output.pcd")
+            if pcd.is_empty():
+                raise ValueError(f"\033[31m[ERROR]Cannot load '{pcd}'\033[0m")
+            print(f"\033[32m [INFO]Load pcd successfully! {pcd}\033[0m")
+            # pcd_data = o3d.geometry.PointCloud()
+            # pcd_data.points = o3d.utility.Vector3dVector(points)
+            # pcd_data.colors = o3d.utility.Vector3dVector(image_np.reshape(-1, 3))
+            pcd.estimate_normals()
 
             if down_sample:
                 voxel_size = 0.01
@@ -639,9 +642,9 @@ class GaussianTrainer(object):
                     pcd_data = pcd_data.voxel_down_sample(voxel_size=voxel_size)
                     voxel_size *= 5
 
-            colors = np.asarray(pcd_data.colors, dtype=np.float32)
-            points = np.asarray(pcd_data.points, dtype=np.float32)
-            normals = np.asarray(pcd_data.normals, dtype=np.float32)
+            colors = np.asarray(pcd.colors, dtype=np.float32)
+            points = np.asarray(pcd.points, dtype=np.float32)
+            normals = np.asarray(pcd.normals, dtype=np.float32)
             pcd = BasicPointCloud(points, colors, normals)
             viewpoint_camera_list = self.load_viewpoint_cam(idx)
 

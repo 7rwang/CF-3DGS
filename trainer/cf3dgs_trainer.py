@@ -270,7 +270,6 @@ class CFGaussianTrainer(GaussianTrainer):
         # Initialize gaussians
         self.loss_func.depth_loss_type = "invariant"
         # Set seq_idx manually
-        self.gs_render_local.gaussians.seq_idx = 1
         print("Current seq_idx is {}".format(self.gs_render_local.gaussians.seq_idx))
 
         pipe = copy(self.pipe_cfg)
@@ -301,7 +300,7 @@ class CFGaussianTrainer(GaussianTrainer):
         for iteration in range(1, optim_opt.iterations+1):
             # Update learning rate
             self.gs_render_local.gaussians.update_learning_rate(iteration)
-            loss, rend_dict, psnr_train = self.train_step(self.gs_render_local,
+            loss, 2, psnr_train = self.train_step(self.gs_render_local,
                                                           viewpoint_cam, iteration,
                                                           pipe, optim_opt,
                                                           #   depth_gt=self.mono_depth[view_idx_prev],
@@ -492,7 +491,6 @@ class CFGaussianTrainer(GaussianTrainer):
             if iteration == num_iterations:
                 progress_bar.close()
         # ---------------------------------------------------------------------------------------
-        self.gs_render_local.gaussians.seq_idx += 1
 
         return pcd, local_model_params
 
@@ -588,6 +586,7 @@ class CFGaussianTrainer(GaussianTrainer):
 
             # 这个for循环应该是需要修改的，这里应该就是在读取图像
             previous_batch_fidx = init_idx
+
             for i in range(start_frame, end_frame, batch_size):
                 curr_batch_fidx = list(range(i, min(i + batch_size, end_frame)))
                 print(f"Current batch_fidx: {curr_batch_fidx}")
@@ -637,13 +636,15 @@ class CFGaussianTrainer(GaussianTrainer):
                                     f"{result_path}/train/{self.global_iteration:06d}_{previous_batch_fidx[0]}_{i}.png",
                                     gt_image=gt_images[i,...], save_ply=False)
                     # ----------------------------计算psnr_train----------------------------------
-
+                    
                 except Exception as e:
                     warnings.warn(f"Error processing frame {previous_batch_fidx}: {e}")
                     continue
 # -------------------------------------------four views-------------------------------------------
                 # Updata previous_batch_fidx
                 previous_batch_fidx = curr_batch_fidx
+                # Update seq_idx
+                self.gs_render_local.gaussians.seq_idx += 1
                         
             with torch.no_grad():
                 psnr_test = 0.0
