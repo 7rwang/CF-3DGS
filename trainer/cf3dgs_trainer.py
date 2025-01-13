@@ -283,6 +283,7 @@ class CFGaussianTrainer(GaussianTrainer):
         self.gs_render_local.reset_model()
         # 目前pcd不做调整，还是使用单帧DepthMap来恢复点云
         self.gs_render_local.init_model(pcd)
+        print("Points number : {}".format(self.gs_render_local.gaussians.get_xyz.shape[0]))
         # Fit current gaussian
         optim_opt.iterations = 1000
         optim_opt.densify_from_iter = optim_opt.iterations + 1
