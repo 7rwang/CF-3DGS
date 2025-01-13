@@ -371,9 +371,19 @@ class CFGaussianTrainer(GaussianTrainer):
             if iteration == optim_opt.iterations:
                 progress_bar.close()
 
-        self.visualize(rend_dict_ref, "vis/render_optim.png",
-                       gt_image=viewpoint_cam_ref.original_image.cuda(),
-                       gt_depth=self.mono_depth[view_idx_prev])
+        output_dir = "/home/xduo/桌面/CF-3DGS/output/render_rt"
+        os.makedirs(output_dir, exist_ok=True)
+         # 遍历视图索引并保存图片
+        for i in view_idx_prev:
+            # 构造完整的保存路径，使用 f-string 格式化
+            save_path = os.path.join(output_dir, f"image_{i}.png")
+            
+            # 获取图片数据
+            image = rend_dict[i]['image']
+            
+            # 保存图片
+            utils.save_image(image, save_path)
+            
         local_model_params = self.gs_render_local.gaussians.capture()
 
         # pcd under view_idx_prev frame
