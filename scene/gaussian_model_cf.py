@@ -931,12 +931,8 @@ class CF3DGS_Render:
                     shs_view = self.gaussians.get_features.transpose(1, 2).view(
                         -1, 3, (self.gaussians.max_sh_degree + 1) ** 2
                     )
-                    # print("shs_view is {}".format(shs_view))
-                    # colors_precomp_list = []
-                    # for camera in viewpoint_camera:
-                    # fidx = camera.uid
-                     # camera_center = self.gaussians.get_RT(fidx).inverse()[
-                    #     :3, 3].detach()
+                    print(f"shs_view shape: {shs_view.shape}")
+                    print(f"shs_view range: min={shs_view.min().item()}, max={shs_view.max().item()}")
 
                     _, camera_centers, _ = self.load_json("/home/xduo/桌面/CF-3DGS/data/car_4v/calib.json")
                     
@@ -947,17 +943,11 @@ class CF3DGS_Render:
                     # 将相机中心扩展为 (N, 4, 3)
                     camera_centers = torch.from_numpy(camera_centers).float().to(device)
                     camera_centers = camera_centers.unsqueeze(0).expand(self.gaussians._xyz.shape[0], -1, -1)
-
-                    # print("camera_centers shape is {}".format(camera_centers.shape))
-                    # print("xyz_expanded shape is {}".format(xyz_expanded.shape))
-                    # print("camera_center[None] shape is {}".format(camera_centers[None].shape))
-                    # print("self.gaussians.get_features.shape[0] is {}".format(self.gaussians.get_features.shape[0]))
-                    # camera_center = camera_center[None].repeat(
-                    #     self.gaussians.get_features.shape[0], 1, 1)
                     dir_pp = xyz_expanded - camera_centers
                     dir_pp_normalized = dir_pp / \
                         dir_pp.norm(dim=1, keepdim=True)
                     
+                    print(f"dir_pp_normalized range: min={dir_pp_normalized.min().item()}, max={dir_pp_normalized.max().item()}")
                     colors_precomp_list = []
                     for cam_idx in range(4):
                         sh2rgb = eval_sh(
@@ -965,7 +955,9 @@ class CF3DGS_Render:
                             shs_view,
                              dir_pp_normalized[:, cam_idx]  # (N, 3)
                             )
+                        print(f"Camera {cam_idx} sh2rgb range: min={sh2rgb.min().item()}, max={sh2rgb.max().item()}")
                         rgb = torch.clamp_min(sh2rgb + 0.5, 0.0)
+                        print(f"Camera {cam_idx} rgb range: min={rgb.min().item()}, max={rgb.max().item()}")
                         colors_precomp_list.append(rgb)
             
                     # 堆叠所有相机的结果 (4, N, 3)
@@ -1034,63 +1026,8 @@ class CF3DGS_Render:
                         # print("\033[32m[INFO]11111111111111111\033[0m")
                         rendered_image, radii, rendered_depth, rendered_alpha = out
                         # print("\033[32m[INFO]22222222222222222\033[0m")
-                        # try:
-                        #     print(f"rendered_image shape: {rendered_image.shape}")
-                        # except:
-                        #     print("Error accessing rendered_image shape")
-                            
-                        # try:
-                        #     print(f"radii shape: {radii.shape}")
-                        # except:
-                        #     print("Error accessing radii shape")
-                            
-                        # try:
-                        #     print(f"rendered_depth shape: {rendered_depth.shape}")
-                        # except:
-                        #     print("Error accessing rendered_depth shape")
-                            
-                        # try:
-                        #     print(f"rendered_alpha shape: {rendered_alpha.shape}")
-                        # except:
-                        #     print("Error accessing rendered_alpha shape")
-
-                        # 尝试移动到CPU看是否可以访问
-                        # try:
-                        #     rendered_image_cpu = rendered_image.cpu()
-                        #     print("Successfully moved rendered_image to CPU")
-                        # except:
-                        #     print("Error moving rendered_image to CPU")
-
-                        # print(f"Type of out[0]: {type(out[0])}")
-                        # print(f"Type of out[1]: {type(out[1])}")
-                        # print(f"Type of out[2]: {type(out[2])}")
-                        # print(f"Type of out[3]: {type(out[3])}")
-
-                        # print(f"rendered_image shape: {rendered_image.shape}")
-                        # print(f"radii shape: {radii.shape}")
-                        # print(f"rendered_depth shape: {rendered_depth.shape}")
-                        # print(f"rendered_alpha shape: {rendered_alpha.shape}")
-        
-                        # # 如果是tensor，只打印基本信息
-                        # for i, item in enumerate(out):
-                        #     if isinstance(item, torch.Tensor):
-                        #         print(f"Item {i} is tensor on device: {item.device}")
-
-                        
-                        # print(f"rendered_image is None: {rendered_image is None}")
-                        # print(f"radii is None: {radii is None}")
-                        # print(f"rendered_depth is None: {rendered_depth is None}")
-                        # print(f"rendered_alpha is None: {rendered_alpha is None}")
-
-                        # try:
-                        #     print(f"rendered_image has nan: {torch.isnan(rendered_image).any().item()}")
-                        #     print(f"rendered_image has inf: {torch.isinf(rendered_image).any().item()}")
-                        # except:
-                        #     print("Error checking rendered_image values")
-                   
                         rendered_image = rendered_image.clamp(0, 1)
                      
-                        
                         # Those Gaussians that were frustum culled or had a radius of 0 were not visible.
                         # They will be excluded from value updates used in the splitting criteria.
                         output_dict = {
