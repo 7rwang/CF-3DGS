@@ -650,7 +650,7 @@ class GaussianTrainer(object):
 
     def prepare_data(self, idx, down_sample=True,
                      orthogonal=True, learn_pose=False,
-                     pose=None, load_depth=True,
+                     pose=None, load_depth=False,
                      load_gt=False):
         if self.data_type == "co3d":
             return self.prepare_data_co3d(idx, down_sample=down_sample,
