@@ -599,7 +599,7 @@ class CFGaussianTrainer(GaussianTrainer):
                     
                     gt_images = [vc.original_image.cuda() for vc in viewpoint_cam]
                     render_images = [rd["image"] for rd in render_dict]
-                    import pdb; pdb.set_trace()
+                    # import pdb; pdb.set_trace()
                     gt_images = torch.stack(gt_images)
                     render_images = torch.stack(render_images)
 
