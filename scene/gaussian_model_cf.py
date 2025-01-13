@@ -1025,8 +1025,9 @@ class CF3DGS_Render:
                     if len(out) == 4:
                         # print("\033[32m[INFO]11111111111111111\033[0m")
                         rendered_image, radii, rendered_depth, rendered_alpha = out
-                        # all_zero = all(torch.all(rendered_image == 0))
-                        # print("\033[32m[INFO] all zero in renderedImgaes? {}\033[0m".format(all_zero))
+                        print("type of rendered image is {}".format(type(rendered_image)))
+                        all_zero = all(torch.all(rendered_image == 0))
+                        print("\033[32m[INFO] all zero in renderedImgaes? {}\033[0m".format(all_zero))
                         rendered_image = rendered_image.clamp(0, 1)
                      
                         # Those Gaussians that were frustum culled or had a radius of 0 were not visible.
