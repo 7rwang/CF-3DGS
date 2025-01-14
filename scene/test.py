@@ -1,6 +1,7 @@
 
 
 import os
+print("Current Working Directory:", os.getcwd())
 from dataset_readers import readColmapCameras
 from colmap_loader import read_extrinsics_binary,read_intrinsics_binary
 
