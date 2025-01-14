@@ -1,11 +1,12 @@
 
 
 import os
+import sys
+
 
 # 获取项目根目录
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 sys.path.append(project_root)
-import sys
 from PIL import Image
 from typing import NamedTuple
 from .colmap_loader import read_extrinsics_text, read_intrinsics_text, qvec2rotmat, \
