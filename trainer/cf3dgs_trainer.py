@@ -459,8 +459,8 @@ class CFGaussianTrainer(GaussianTrainer):
 
             # print("fidx is {}".format(fidx))
             self.global_iteration += 1
-            if self.gs_render.gaussians.rotate_seq:
-                self.gs_render.gaussians.set_seq_idx(fidx)
+            # if self.gs_render.gaussians.rotate_seq:
+            #     self.gs_render.gaussians.set_seq_idx(fidx)
             viewpoint_cam = self.load_viewpoint_cam(fidx,
                                                     pose=None,
                                                     # if not self.gs_render.gaussians.rotate_seq
