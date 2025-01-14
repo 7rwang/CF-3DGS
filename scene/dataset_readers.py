@@ -19,7 +19,7 @@ import json
 from pathlib import Path
 from plyfile import PlyData, PlyElement
 from utils.sh_utils import SH2RGB
-from .gaussian_model import BasicPointCloud
+from gaussian_model import BasicPointCloud
 
 
 class CameraInfo(NamedTuple):
