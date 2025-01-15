@@ -606,7 +606,7 @@ class CFGaussianTrainer(GaussianTrainer):
                     # pcd_new, local_gauss_params = self.add_view(
                     #     None, fidx, fidx-1, pipe, optim_opt, reverse=reverse)
                 try:
-                  
+                    frame_number = 1
                     self.gs_render.gaussians.rotate_seq = False
 
                     # ----------------------------计算psnr_train--------------------------------
@@ -634,9 +634,11 @@ class CFGaussianTrainer(GaussianTrainer):
                     for i in range(4):
                         self.visualize(render_dict[i],
                                     f"{result_path}/train/{self.global_iteration:06d}_{previous_batch_fidx[0]}_{i}.png",
-                                    gt_image=gt_images[i,...], save_ply=False)
+                                    gt_image=gt_images[i,...], save_ply=True)
                     # ----------------------------计算psnr_train----------------------------------
-                    
+                    path = f"/home/xduo/桌面/CF-3DGS/output/gaussians_frame_{frame_number}"
+                    self.gs_render_local.gaussians.save_ply(path)
+                    print(f"\033[32m[INFO]Save Gausssian from frame {frame_number} successfully!\033[0m")
                 except Exception as e:
                     warnings.warn(f"Error processing frame {previous_batch_fidx}: {e}")
                     continue
@@ -645,6 +647,7 @@ class CFGaussianTrainer(GaussianTrainer):
                 previous_batch_fidx = curr_batch_fidx
                 # Update seq_idx
                 self.gs_render_local.gaussians.seq_idx += 1
+                frame_number += 1
                         
             with torch.no_grad():
                 psnr_test = 0.0
@@ -668,6 +671,7 @@ class CFGaussianTrainer(GaussianTrainer):
                     self.visualize(render_dict,
                                     f"{result_path}/eval/ep{epoch:02d}_{self.global_iteration:06d}_{val_idx:03d}.png",
                                     gt_image=gt_image, save_ply=False)
+                
                 print('Number of {:03d} to {:03d} frames: PSNR : {:.03f}'.format(
                     start_frame,
                     end_frame,

@@ -20,7 +20,8 @@ from scene import Scene
 from gaussian_renderer import render
 from arguments import ModelParams, PipelineParams, OptimizationParams
 from utils.camera_utils import cameraList_from_camInfos, camera_to_JSON
-from scene.dataset_readers import sceneLoadTypeCallbacks, CameraInfo, read_intrinsics_binary
+from scene.dataset_readers import sceneLoadTypeCallbacks, CameraInfo, \
+                        read_intrinsics_binary, read_extrinsics_binary, readColmapCameras
 import glob
 from copy import copy
 import open3d as o3d
@@ -568,7 +569,7 @@ class GaussianTrainer(object):
                     (width // 2, height // 2), Image.LANCZOS)
                 width, height = original_image.size
             image_np = np.asarray(original_image) / 255.0
-            print("\033[32m [INFO]image_np shape is {}\033[0m".format(image_np.shape))
+            # print("\033[32m [INFO]image_np shape is {}\033[0m".format(image_np.shape))
             color_torch = torch.from_numpy(np.asarray(
                 original_image) / 255.0).permute(2, 0, 1).float()
             
@@ -632,8 +633,8 @@ class GaussianTrainer(object):
                 raise ValueError(f"\033[31m[ERROR]Cannot load '{pcd}'\033[0m")
             print(f"\033[32m [INFO]Load pcd successfully! {pcd}\033[0m")
 
-            print("pcd colors shape is {}".format(np.asarray(pcd.colors).shape))
-            print("pcd points shape is {}".format(np.asarray(pcd.points).shape))
+            # print("pcd colors shape is {}".format(np.asarray(pcd.colors).shape))
+            # print("pcd points shape is {}".format(np.asarray(pcd.points).shape))
             # pcd_data = o3d.geometry.PointCloud()
             # pcd_data.points = o3d.utility.Vector3dVector(points)
             # pcd_data.colors = o3d.utility.Vector3dVector(image_np.reshape(-1, 3))
@@ -733,11 +734,14 @@ class GaussianTrainer(object):
             #         t_list.append(pose[i][:3, 3].numpy())
             
             R, t, intrinsics = self.load_json("/home/xduo/桌面/CF-3DGS/data/car_4v/calib.json")
+            R = np.transpose(R)
+
             R = torch.tensor(R, dtype=torch.float32)  # [4, 3, 3]
             t = torch.tensor(t, dtype=torch.float32) 
+            
 
-            # print("The shape of R is {}\n".format(R.shape))
-            # print("The shape of T is {}".format(t.shape))
+            print("R is {}\n".format(R))
+            print("T is {}".format(t ))
             # ------------------------------initialize R and T------------------------------
 
             # ------------------------------focal length------------------------------
