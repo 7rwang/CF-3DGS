@@ -26,4 +26,4 @@ cameras_intrinsic_file = os.path.join(path, "sparse/0", "cameras.bin")
 cam_extrinsics = read_extrinsics_binary(cameras_extrinsic_file)
 cam_intrinsics = read_intrinsics_binary(cameras_intrinsic_file)
 
-print(cam_intrinsics) 
+print(cam_intrinsics[1]) 
