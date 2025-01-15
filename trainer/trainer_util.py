@@ -734,7 +734,7 @@ class GaussianTrainer(object):
             #         t_list.append(pose[i][:3, 3].numpy())
             
             R, t, intrinsics = self.load_json("/home/xduo/桌面/CF-3DGS/data/car_4v/calib.json")
-            R = np.transpose(R)
+            R = np.transpose(R, axes=(0, 2, 1))
 
             R = torch.tensor(R, dtype=torch.float32)  # [4, 3, 3]
             t = torch.tensor(t, dtype=torch.float32) 
