@@ -739,9 +739,22 @@ class GaussianTrainer(object):
             R = torch.tensor(R, dtype=torch.float32)  # [4, 3, 3]
             t = torch.tensor(t, dtype=torch.float32) 
             
+            # Check whether R and T are loaded correctly
+            file_path = '/home/xduo/桌面/CF-3DGS/output/load_camera_RT.txt'
+            run_count = 1
+            if os.path.exists(file_path):
+                with open(file_path, 'r', encoding='utf-8') as file:
+                    lines = file.readlines()
+                    if lines:
+                        last_line = lines[-1]
+                        try:
+                            last_run = int(last_line.split(',')[0].split(':')[1].strip())
+                            run_count = last_run + 1
+                        except:
+                            pass
+            with open(file_path, 'a', encoding='utf-8') as file:
+                file.write(f'运行次数: {run_count}, R: {R}, T: {t}\n')
 
-            print("R is {}\n".format(R))
-            print("T is {}".format(t ))
             # ------------------------------initialize R and T------------------------------
 
             # ------------------------------focal length------------------------------

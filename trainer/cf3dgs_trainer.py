@@ -283,8 +283,8 @@ class CFGaussianTrainer(GaussianTrainer):
         self.gs_render_local.reset_model()
         # 目前pcd不做调整，还是使用单帧DepthMap来恢复点云
         self.gs_render_local.init_model(pcd)
-        print("self.gs_render_lcoal.gaussians feature is{}".format(self.gs_render_local.gaussians.get_features))
-        print("self.gs_render_lcoal.gaussians feature shape is{}".format(self.gs_render_local.gaussians.get_features.shape))
+        # print("self.gs_render_lcoal.gaussians feature is{}".format(self.gs_render_local.gaussians.get_features))
+        # print("self.gs_render_lcoal.gaussians feature shape is{}".format(self.gs_render_local.gaussians.get_features.shape))
         # Fit current gaussian
         optim_opt.iterations = 1000
         optim_opt.densify_from_iter = optim_opt.iterations + 1
@@ -392,6 +392,22 @@ class CFGaussianTrainer(GaussianTrainer):
 
         rel_pose = self.gs_render_local.gaussians.get_RT().detach() # 4,4
         pose = rel_pose @ self.gs_render.gaussians.get_RT(self.gs_render_local.gaussians.seq_idx).detach() # 4,4
+
+        # Verify the optimized pose whether precise or not
+        file_path = '/home/xduo/桌面/CF-3DGS/output/optimized_pose.txt'
+        run_count = 1
+        if os.path.exists(file_path):
+            with open(file_path, 'r', encoding='utf-8') as file:
+                lines = file.readlines()
+                if lines:
+                    last_line = lines[-1]
+                    try:
+                        last_run = int(last_line.split(',')[0].split(':')[1].strip())
+                        run_count = last_run + 1
+                    except:
+                        pass
+        with open(file_path, 'a', encoding='utf-8') as file:
+                file.write(f'运行次数: {run_count}, pose: {pose}\n')
 
         self.gs_render.gaussians.update_RT_seq(pose, self.gs_render_local.gaussians.seq_idx)
         # import pad; pdb.set_trace()
