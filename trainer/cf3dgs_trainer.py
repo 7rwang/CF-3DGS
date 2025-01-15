@@ -652,7 +652,7 @@ class CFGaussianTrainer(GaussianTrainer):
                                     f"{result_path}/train/{self.global_iteration:06d}_{previous_batch_fidx[0]}_{i}.png",
                                     gt_image=gt_images[i,...], save_ply=True)
                     # ----------------------------计算psnr_train----------------------------------
-                    path = f"/home/xduo/桌面/CF-3DGS/output/gaussians_frame_{self.frame_number}"
+                    path = f"/home/xduo/桌面/CF-3DGS/output/gaussian/gaussians_frame_{self.frame_number}.ply"
                     self.gs_render_local.gaussians.save_ply(path)
                     print(f"\033[32m[INFO]Save Gausssian from frame {self.frame_number} successfully!\033[0m")
                 except Exception as e:
@@ -967,12 +967,16 @@ class CFGaussianTrainer(GaussianTrainer):
                      ref_fidx=None,
                      **kwargs):
         loss = 0.0
+        mask = viewpoint_cam.mask.cuda()
+        mask = mask.unsqueeze(0) if len(mask.shape) == 2 else mask
         if "image" in render_dict:
             image = render_dict["image"]
             gt_image = viewpoint_cam.original_image.cuda()
+            image = image * mask
         if "depth" in render_dict:
             depth = render_dict["depth"]
             depth[depth < self.near] = self.near
+            depth_pred = depth_pred * mask.squeeze(0)
             fidx = viewpoint_cam.uid
             kwargs['depth_pred'] = depth
 

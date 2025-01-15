@@ -551,9 +551,15 @@ class GaussianTrainer(object):
                             load_depth=False, **kwargs):
         x, y, z, w = idx
         image_names = [self.data[x], self.data[y], self.data[z], self.data[w]]
+
+        dir_name, file_name = os.path.split(image_name)
+        dir_name = dir_name.replace('images', 'masks')
+        base_name, _ = os.path.splitext(file_name)
+        new_file_name = base_name + '.png'
+        mask_names = os.path.join(dir_name, new_file_name)
         # print("\033[32midx in func prepare_custom_data is {}\033[0m".format(idx))
-        print("\033[32m[INFO] image names are : {}\033[0m".format(image_names))
         images = []
+        masks = []
         depth_tensors = []
         pcd_data_list = []
         cam_info_list = []
@@ -711,8 +717,18 @@ class GaussianTrainer(object):
             # print("idx:", idx)
             # print("self.data is: {}".format(self.data))
             image_names = [self.data[i] for i in idx]
+            print("\033[32m[INFO] image names are : {}\033[0m".format(image_names))
+
+            dir_name, file_name = os.path.split(image_name)
+            dir_name = dir_name.replace('images', 'masks')
+            base_name, _ = os.path.splitext(file_name)
+            new_file_name = base_name + '.png'
+            mask_names = os.path.join(dir_name, new_file_name)
+            print("\033[32m[INFO] masks names are : {}\033[0m".format(mask_names))
+
             # print("image_names:", image_names)
             original_images = [Image.open(image_name).convert("RGB") for image_name in image_names]
+            masks = [Image.open(mask_names) for mask_name in mask_names]
             color_torch_list = []
             for original_image in original_images:
                 width, height = original_image.size
@@ -775,7 +791,7 @@ class GaussianTrainer(object):
                 single_viewpoint_camera = Camera(idx[i], R[i, ...].numpy(), t[i, ...].numpy(), FoVx[i], FoVy[i], color_torch[i],
                                   gt_alpha_mask=None, image_name=image_names[i],
                                   intrinsics=intrinsics[i],
-                                  uid=idx[i], is_co3d=False)
+                                  uid=idx[i], is_co3d=False, mask_name=mask_names[i])
                 viewpoint_camera.append(single_viewpoint_camera)
             # ------------------------------load 4 viewpoint camera------------------------------
             # print("\033[32m[INFO]viewpoint_camera from func load_viewpoint_cam is {}\033[0m".format(viewpoint_camera))

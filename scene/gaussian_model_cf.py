@@ -837,7 +837,7 @@ class CF3DGS_Render:
         self,
         viewpoint_camera,
         scaling_modifier=1.0,
-        invert_bg_color=False,
+        invert_bg_color=True,
         override_color=None,
         compute_cov3D_python=False,
         convert_SHs_python=False,

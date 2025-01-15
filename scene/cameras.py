@@ -9,6 +9,8 @@
 
 
 import torch
+from PIL import Image
+from torchvision import transforms
 from torch import nn
 import numpy as np
 from utils.graphics_utils import getWorld2View2, getProjectionMatrix, getWorld2View3
@@ -17,7 +19,7 @@ class Camera(nn.Module):
     def __init__(self, colmap_id, R, T, FoVx, FoVy, image, gt_alpha_mask,
                  image_name, uid, intrinsics=None,
                  trans=np.array([0.0, 0.0, 0.0]), scale=1.0, data_device = "cuda",
-                 do_grad=False, is_co3d=False,
+                 do_grad=False, is_co3d=False, **kwargs
                  ):
         super(Camera, self).__init__()
 
@@ -28,6 +30,8 @@ class Camera(nn.Module):
         self.FoVx = FoVx
         self.FoVy = FoVy
         self.image_name = image_name
+        self.mask = kwargs.get('mask_name', None) 
+
         self.intrinsics = intrinsics.astype(np.float32)
 
         try:
@@ -45,9 +49,9 @@ class Camera(nn.Module):
             self.original_image *= gt_alpha_mask.to(self.data_device)
         else:
             self.original_image *= torch.ones((1, self.image_height, self.image_width), device=self.data_device)
-        
-        self.gt_alpha_mask = gt_alpha_mask
-
+    
+        self.mask = self.load_mask(self.mask) if self.mask else None
+            
         self.zfar = 100.0
         self.znear = 0.01
 
@@ -72,6 +76,21 @@ class Camera(nn.Module):
 
         self.full_proj_transform = (self.world_view_transform.unsqueeze(0).bmm(self.projection_matrix.unsqueeze(0))).squeeze(0)
         self.camera_center = self.world_view_transform.inverse()[3, :3]
+
+    def load_mask(self, mask_name):
+        try:
+           
+            mask = Image.open(mask_name).convert('L')  
+            transform = transforms.ToTensor()
+            mask_tensor = transform(mask).cuda() 
+            # 将掩码转换为二值化形式（0 或 1）
+            mask_tensor = (mask_tensor > 0).float()
+            return mask_tensor
+            
+        except Exception as e:
+            print(f"Error loading mask {mask_name}: {e}")
+            return None
+        
 
 class MiniCam:
     def __init__(self, width, height, fovy, fovx, znear, zfar, world_view_transform, full_proj_transform):
