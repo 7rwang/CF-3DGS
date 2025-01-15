@@ -157,7 +157,6 @@ class CFGaussianModel:
                     else:
                         raise TypeError(f"Unsupported type for Rt: {type(Rt)}")
 
-        # Rt shape: (N, 4, 4)
         return Rt.squeeze()
 
     def set_seq_idx(self, idx):

@@ -77,6 +77,7 @@ class CFGaussianTrainer(GaussianTrainer):
         self.use_mask = self.pipe_cfg.use_mask
         self.use_mono = self.pipe_cfg.use_mono
         self.near = 0.01
+        self.frame_number = 1
         self.setup_losses()
 
     def setup_losses(self):
@@ -236,7 +237,7 @@ class CFGaussianTrainer(GaussianTrainer):
         optim_opt.iterations = 1000
         optim_opt.densify_from_iter = optim_opt.iterations + 1
         progress_bar = tqdm(range(optim_opt.iterations),
-                            desc="Training progress_")
+                            desc="Training progress_init")
         self.gs_render.gaussians.training_setup(optim_opt, fix_pos=True,)
         for iteration in range(1, optim_opt.iterations+1):
             # Update learning rate
@@ -320,7 +321,7 @@ class CFGaussianTrainer(GaussianTrainer):
             if iteration == optim_opt.iterations:
                 progress_bar.close()
         # print(f"optimizing frame {view_idx:03d}")
-        print("optimizing frame {}".format(self.gs_render_local.gaussians.seq_idx))
+        print("optimizing frame {}".format(self.frame_number))
         # print("Previous view_idx is {}".format(view_idx_prev))
         # print("Current view_idx is {}".format(view_idx))
         # -------------------------------optimize Gaussian-----------------------------------
@@ -391,7 +392,7 @@ class CFGaussianTrainer(GaussianTrainer):
         # Ultimate Rt's shape should be (4, 4)
 
         rel_pose = self.gs_render_local.gaussians.get_RT().detach() # 4,4
-        pose = rel_pose @ self.gs_render.gaussians.get_RT(self.gs_render_local.gaussians.seq_idx).detach() # 4,4
+        pose = rel_pose @ self.gs_render.gaussians.get_RT(self.frame_number - 1).detach() # 4,4
 
         # Verify the optimized pose whether precise or not
         file_path = '/home/xduo/桌面/CF-3DGS/output/optimized_pose.txt'
@@ -409,7 +410,7 @@ class CFGaussianTrainer(GaussianTrainer):
         with open(file_path, 'a', encoding='utf-8') as file:
                 file.write(f'运行次数: {run_count}, pose: {pose}\n')
 
-        self.gs_render.gaussians.update_RT_seq(pose, self.gs_render_local.gaussians.seq_idx)
+        self.gs_render.gaussians.update_RT_seq(pose, self.frame_number)
         # import pad; pdb.set_trace()
         self.gs_render.gaussians.rotate_seq = False
         pipe.convert_SHs_python = self.gs_render.gaussians.rotate_seq
@@ -602,7 +603,7 @@ class CFGaussianTrainer(GaussianTrainer):
 
             # 这个for循环应该是需要修改的，这里应该就是在读取图像
             previous_batch_fidx = init_idx
-
+            frame_number = 1
             for i in range(start_frame, end_frame, batch_size):
                 curr_batch_fidx = list(range(i, min(i + batch_size, end_frame)))
                 print(f"Current batch_fidx: {curr_batch_fidx}")
@@ -622,7 +623,6 @@ class CFGaussianTrainer(GaussianTrainer):
                     # pcd_new, local_gauss_params = self.add_view(
                     #     None, fidx, fidx-1, pipe, optim_opt, reverse=reverse)
                 try:
-                    frame_number = 1
                     self.gs_render.gaussians.rotate_seq = False
 
                     # ----------------------------计算psnr_train--------------------------------
@@ -652,9 +652,9 @@ class CFGaussianTrainer(GaussianTrainer):
                                     f"{result_path}/train/{self.global_iteration:06d}_{previous_batch_fidx[0]}_{i}.png",
                                     gt_image=gt_images[i,...], save_ply=True)
                     # ----------------------------计算psnr_train----------------------------------
-                    path = f"/home/xduo/桌面/CF-3DGS/output/gaussians_frame_{frame_number}"
+                    path = f"/home/xduo/桌面/CF-3DGS/output/gaussians_frame_{self.frame_number}"
                     self.gs_render_local.gaussians.save_ply(path)
-                    print(f"\033[32m[INFO]Save Gausssian from frame {frame_number} successfully!\033[0m")
+                    print(f"\033[32m[INFO]Save Gausssian from frame {self.frame_number} successfully!\033[0m")
                 except Exception as e:
                     warnings.warn(f"Error processing frame {previous_batch_fidx}: {e}")
                     continue
@@ -663,7 +663,7 @@ class CFGaussianTrainer(GaussianTrainer):
                 previous_batch_fidx = curr_batch_fidx
                 # Update seq_idx
                 self.gs_render_local.gaussians.seq_idx += 1
-                frame_number += 1
+                self.frame_number += 1
                         
             with torch.no_grad():
                 psnr_test = 0.0
