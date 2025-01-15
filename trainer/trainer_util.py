@@ -616,11 +616,11 @@ class GaussianTrainer(object):
 
             intr_mat_tensor = torch.from_numpy(
                 intrinsics).float().to(depth_tensor.device)
-            pts = depth_to_3d(depth_tensor[None, None],
-                            intr_mat_tensor[None],
-                            normalize_points=False)
+            # pts = depth_to_3d(depth_tensor[None, None],
+            #                 intr_mat_tensor[None],
+            #                 normalize_points=False)
 
-            points = pts[0].permute(1, 2, 0).cpu().numpy().reshape(-1, 3)
+            # points = pts[0].permute(1, 2, 0).cpu().numpy().reshape(-1, 3)
             cam_info_list.append(cam_info)
             # 你妈的这个uid是啥
             viewpoint_camera = Camera(idx[i], R, t, FoVx, FoVy, color_torch,
