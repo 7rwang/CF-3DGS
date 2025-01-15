@@ -262,7 +262,7 @@ class GaussianTrainer(object):
             self.seq_len = len(self.data)
         elif self.model_cfg.data_type == "custom":
             source_path = self.model_cfg.source_path
-            cameras_intrinsic_file = os.path.join(source_path, "sparse/0", "cameras.bin")
+            cameras_intrinsic_file = os.path.join(source_path, "sparse/0", "camera.bin")
             max_frames = 300
             # if os.path.exists(cameras_intrinsic_file):
             #     images = sorted(glob.glob(os.path.join(source_path, "images", "*.jpg")))
@@ -761,7 +761,7 @@ class GaussianTrainer(object):
             for i in range(4):
                 single_viewpoint_camera = Camera(idx[i], R[i, ...].numpy(), t[i, ...].numpy(), FoVx[i], FoVy[i], color_torch[i],
                                   gt_alpha_mask=None, image_name=image_names[i],
-                                  intrinsics=self.intrinsic,
+                                  intrinsics=intrinsics[i],
                                   uid=idx[i], is_co3d=False)
                 viewpoint_camera.append(single_viewpoint_camera)
             # ------------------------------load 4 viewpoint camera------------------------------
